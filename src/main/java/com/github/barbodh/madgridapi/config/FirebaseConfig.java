@@ -1,8 +1,10 @@
 package com.github.barbodh.madgridapi.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import lombok.AllArgsConstructor;
@@ -35,5 +37,10 @@ public class FirebaseConfig {
     @Bean
     public DatabaseReference firebaseDatabaseReference(FirebaseApp firebaseApp) {
         return FirebaseDatabase.getInstance(firebaseApp).getReference();
+    }
+
+    @Bean
+    public Firestore getFirestoreDb() {
+        return FirestoreClient.getFirestore();
     }
 }

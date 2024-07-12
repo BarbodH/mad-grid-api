@@ -1,19 +1,26 @@
 package com.github.barbodh.madgridapi.lobby;
 
-import com.google.firebase.database.DatabaseReference;
+import com.github.barbodh.madgridapi.game.GameMode;
+import com.google.cloud.firestore.FieldValue;
+import com.google.cloud.firestore.Firestore;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
 
 @Repository
 @RequiredArgsConstructor
 public class LobbyDao {
-    private final DatabaseReference databaseReference;
-    @Value("${firebase.database.node.queued-players}")
-    private final String databaseNodeName;
+    private final Firestore firestoreDb;
+
+    // TODO: Implement this method
+    public ArrayList<IncomingPlayer> getUnmatchedPlayers(GameMode gameMode) {
+        return new ArrayList<>();
+    }
 
     public void queuePlayer(IncomingPlayer incomingPlayer) {
-        databaseReference.child(databaseNodeName)
-                .child(incomingPlayer.getGameMode().toString()).setValueAsync(incomingPlayer);
+        firestoreDb.collection("madGridData")
+                .document("lobby")
+                .update("CLASSIC", FieldValue.arrayUnion(incomingPlayer));
     }
 }
