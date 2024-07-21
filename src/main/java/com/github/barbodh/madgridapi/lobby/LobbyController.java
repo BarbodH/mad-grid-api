@@ -1,13 +1,13 @@
 package com.github.barbodh.madgridapi.lobby;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class LobbyController {
     private final SimpMessagingTemplate messagingTemplate;
     private final LobbyService lobbyService;

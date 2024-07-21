@@ -1,10 +1,10 @@
 package com.github.barbodh.madgridapi.game;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GameService {
     private final GameDao gameDao;
 

@@ -5,7 +5,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 @Configuration
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FirebaseConfig {
     @Value("${firebase.database.url}")
     private final String databaseUrl;
