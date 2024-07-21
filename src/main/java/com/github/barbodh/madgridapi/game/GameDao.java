@@ -1,6 +1,6 @@
 package com.github.barbodh.madgridapi.game;
 
-import com.google.firebase.database.DatabaseReference;
+import com.google.cloud.firestore.Firestore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class GameDao {
-    private final DatabaseReference databaseReference;
-    @Value("${firebase.database.node.active-multiplayer-games}")
-    private final String databaseNodeName;
+    private final Firestore firestore;
+    @Value("${firebase.collection.name}")
+    private final String collectionName;
 
     public MultiplayerGame createMultiplayerGame(String gameId, GameMode gameMode, String userId1, String userId2) {
         var multiplayerGame = new MultiplayerGame(
@@ -19,7 +19,9 @@ public class GameDao {
                 new Player(userId1, 0),
                 new Player(userId2, 0)
         );
-        databaseReference.child(databaseNodeName).setValueAsync(multiplayerGame);
+        firestore.collection(collectionName)
+                .document("activeMultiplayerGames")
+                .set(multiplayerGame);
         return multiplayerGame;
     }
 }
