@@ -1,6 +1,5 @@
 package com.github.barbodh.madgridapi.lobby;
 
-import com.github.barbodh.madgridapi.game.GameMode;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,7 @@ public class LobbyDao {
     private final String collectionName;
 
     // TODO: Implement this method
-    public ArrayList<IncomingPlayer> getUnmatchedPlayers(GameMode gameMode) {
+    public ArrayList<IncomingPlayer> getUnmatchedPlayers(int gameMode) {
         return new ArrayList<>();
     }
 

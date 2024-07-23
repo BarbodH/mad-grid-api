@@ -1,15 +1,15 @@
 package com.github.barbodh.madgridapi.lobby;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.github.barbodh.madgridapi.game.GameMode;
-import com.github.barbodh.madgridapi.game.GameModeDeserializer;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class IncomingPlayer {
     private String id;
-    @JsonDeserialize(using = GameModeDeserializer.class)
-    private GameMode gameMode;
+    private int gameMode;
 }

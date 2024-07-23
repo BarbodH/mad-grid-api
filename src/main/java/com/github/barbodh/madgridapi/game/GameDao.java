@@ -12,7 +12,7 @@ public class GameDao {
     @Value("${firebase.collection.name}")
     private final String collectionName;
 
-    public MultiplayerGame createMultiplayerGame(String gameId, GameMode gameMode, String userId1, String userId2) {
+    public MultiplayerGame createMultiplayerGame(String gameId, int gameMode, String userId1, String userId2) {
         var multiplayerGame = new MultiplayerGame(
                 gameId,
                 gameMode,

@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class MultiplayerGame {
     private final String id;
-    private final GameMode gameMode;
+    private final int gameMode;
     private final Player player1;
     private final Player player2;
 }

@@ -1,5 +1,6 @@
 package com.github.barbodh.madgridapi.integration;
 
+import com.github.barbodh.madgridapi.lobby.IncomingPlayer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +32,7 @@ public class PublishToServerTest {
 
     @Test
     public void testPublishPlayerToLobby() throws InterruptedException {
-        var clientPayload = new IncomingPlayerClientPayload("123", 0);
+        var clientPayload = new IncomingPlayer("123", 0);
         var timeout = 3; // Seconds
         var stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         var sessionHandler = new ClientStompSessionHandler(new CountDownLatch(2)) {
