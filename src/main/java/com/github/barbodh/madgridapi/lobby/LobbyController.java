@@ -25,7 +25,7 @@ public class LobbyController {
                     messagingTemplate.convertAndSendToUser(
                             multiplayerGame.getPlayer2().getId(),
                             notificationUrl,
-                            multiplayerGame
+                            new LobbyNotification(multiplayerGame)
                     );
                 },
                 () -> messagingTemplate.convertAndSendToUser(
