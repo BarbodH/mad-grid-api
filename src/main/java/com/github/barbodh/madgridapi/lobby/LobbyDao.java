@@ -16,13 +16,13 @@ public class LobbyDao {
     private final String collectionName;
 
     // TODO: Implement this method
-    public ArrayList<IncomingPlayer> getUnmatchedPlayers(int gameMode) {
+    public ArrayList<IncomingPlayer> getUnmatchedPlayer(int gameMode) {
         return new ArrayList<>();
     }
 
     public void queuePlayer(IncomingPlayer incomingPlayer) {
         firestore.collection(collectionName)
                 .document("lobby")
-                .update("CLASSIC", FieldValue.arrayUnion(incomingPlayer));
+                .update("unmatchedPlayers", FieldValue.arrayUnion(incomingPlayer));
     }
 }
