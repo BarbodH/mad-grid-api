@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
+
 @Repository
 @RequiredArgsConstructor
 public class GameDao {
@@ -20,8 +22,8 @@ public class GameDao {
                 new Player(userId2, 0)
         );
         firestore.collection(collectionName)
-                .document("activeMultiplayerGames")
-                .set(multiplayerGame);
+                .document("lobby")
+                .update(Collections.singletonMap("activeMultiplayerGames." + multiplayerGame.getId(), multiplayerGame));
         return multiplayerGame;
     }
 }
