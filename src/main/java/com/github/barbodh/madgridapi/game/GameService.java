@@ -9,16 +9,16 @@ import org.springframework.stereotype.Service;
 public class GameService {
     private final GameDao gameDao;
 
-    public MultiplayerGame createMultiplayerGame(int gameMode, String userId1, String userId2) {
-        ArgumentValidator.validatePlayerId(userId1);
-        ArgumentValidator.validatePlayerId(userId2);
+    public MultiplayerGame createMultiplayerGame(int gameMode, String playerId1, String playerId2) {
+        ArgumentValidator.validatePlayerId(playerId1);
+        ArgumentValidator.validatePlayerId(playerId2);
         ArgumentValidator.validateGameMode(gameMode);
 
         return gameDao.save(new MultiplayerGame(
-                String.format("%s_%s", userId1, userId2),
+                String.format("%s_%s", playerId1, playerId2),
                 gameMode,
-                new Player(userId1, 0),
-                new Player(userId2, 0)
+                new Player(playerId1, 0),
+                new Player(playerId2, 0)
         ));
     }
 }

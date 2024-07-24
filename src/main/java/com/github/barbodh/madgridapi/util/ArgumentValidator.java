@@ -7,12 +7,12 @@ public class ArgumentValidator {
         }
     }
 
-    public static void validatePlayerId(String userId) {
-        if (userId == null || userId.isEmpty()) {
-            throw new IllegalArgumentException("User ID should not be empty. Provided: " + userId);
+    public static void validatePlayerId(String playerId) {
+        if (playerId == null || playerId.isEmpty()) {
+            throw new IllegalArgumentException("Player ID should not be empty. Provided: " + playerId);
         }
-        if (userId.length() > 10) {
-            throw new IllegalArgumentException("User ID should not exceed 10 characters. Provided: " + userId);
+        if (playerId.length() > 10) {
+            throw new IllegalArgumentException("Player ID should not exceed 10 characters. Provided: " + playerId);
         }
     }
 }

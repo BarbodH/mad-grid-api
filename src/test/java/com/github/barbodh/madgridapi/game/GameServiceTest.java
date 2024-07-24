@@ -23,29 +23,29 @@ public class GameServiceTest {
     public void testCreateMultiplayerGame_exceptionHandling() {
         try (var mockedArgumentValidator = mockStatic(ArgumentValidator.class)) {
             var gameMode = 2;
-            var userId1 = "31028";
-            var userId2 = "60682";
-            gameService.createMultiplayerGame(gameMode, userId1, userId2);
+            var playerId1 = "31028";
+            var playerId2 = "60682";
+            gameService.createMultiplayerGame(gameMode, playerId1, playerId2);
 
             mockedArgumentValidator.verify(() -> ArgumentValidator.validateGameMode(gameMode));
-            mockedArgumentValidator.verify(() -> ArgumentValidator.validatePlayerId(userId1));
-            mockedArgumentValidator.verify(() -> ArgumentValidator.validatePlayerId(userId2));
+            mockedArgumentValidator.verify(() -> ArgumentValidator.validatePlayerId(playerId1));
+            mockedArgumentValidator.verify(() -> ArgumentValidator.validatePlayerId(playerId2));
         }
     }
 
     @Test
     public void testCreateMultiplayerGame() {
         var gameMode = 2;
-        var userId1 = "31028";
-        var userId2 = "60682";
+        var playerId1 = "31028";
+        var playerId2 = "60682";
         when(gameDao.save(any(MultiplayerGame.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var multiplayerGame = gameService.createMultiplayerGame(gameMode, userId1, userId2);
+        var multiplayerGame = gameService.createMultiplayerGame(gameMode, playerId1, playerId2);
 
-        assertEquals(String.format("%s_%s", userId1, userId2), multiplayerGame.getId());
+        assertEquals(String.format("%s_%s", playerId1, playerId2), multiplayerGame.getId());
         assertEquals(gameMode, multiplayerGame.getGameMode());
-        assertEquals(userId1, multiplayerGame.getPlayer1().getId());
-        assertEquals(userId2, multiplayerGame.getPlayer2().getId());
+        assertEquals(playerId1, multiplayerGame.getPlayer1().getId());
+        assertEquals(playerId2, multiplayerGame.getPlayer2().getId());
         assertEquals(0, multiplayerGame.getPlayer1().getScore());
         assertEquals(0, multiplayerGame.getPlayer2().getScore());
     }
