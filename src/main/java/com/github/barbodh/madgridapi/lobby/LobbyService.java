@@ -16,7 +16,8 @@ public class LobbyService {
     private final LobbyDao lobbyDao;
 
     public Optional<MultiplayerGame> matchPlayer(IncomingPlayer incomingPlayer) throws ExecutionException, InterruptedException {
-        ArgumentValidator.validateIncomingPlayer(incomingPlayer);
+        ArgumentValidator.validatePlayerId(incomingPlayer.getId());
+        ArgumentValidator.validateGameMode(incomingPlayer.getGameMode());
 
         return lobbyDao.getUnmatchedPlayer(incomingPlayer)
                 .map(opponent -> {

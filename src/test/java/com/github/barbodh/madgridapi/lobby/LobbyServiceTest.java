@@ -2,11 +2,9 @@ package com.github.barbodh.madgridapi.lobby;
 
 import com.github.barbodh.madgridapi.game.GameService;
 import com.github.barbodh.madgridapi.game.MultiplayerGame;
+import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,7 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -26,6 +25,17 @@ public class LobbyServiceTest {
     private GameService gameService;
     @InjectMocks
     private LobbyService lobbyService;
+
+    @Test
+    public void testMatchPlayer_exceptionHandling() throws ExecutionException, InterruptedException {
+        try (var mockedArgumentValidator = mockStatic(ArgumentValidator.class)) {
+            var incomingPlayer = new IncomingPlayer("123", 0);
+            lobbyService.matchPlayer(incomingPlayer);
+
+            mockedArgumentValidator.verify(() -> ArgumentValidator.validatePlayerId(incomingPlayer.getId()));
+            mockedArgumentValidator.verify(() -> ArgumentValidator.validateGameMode(incomingPlayer.getGameMode()));
+        }
+    }
 
     @Test
     public void testMatchPlayer_opponentFound() throws ExecutionException, InterruptedException {
@@ -56,18 +66,5 @@ public class LobbyServiceTest {
         verify(lobbyDao, times(0)).removeUnmatchedPlayer(any(IncomingPlayer.class));
         verify(lobbyDao).queuePlayer(incomingPlayer);
         assertTrue(multiplayerGame.isEmpty());
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {-1, 3})
-    public void testMatchPlayer_invalidGameMode(int invalidGameMode) {
-        assertThrows(IllegalArgumentException.class, () -> lobbyService.matchPlayer(new IncomingPlayer("123", invalidGameMode)));
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = {"", "this_is_a_very_long_string"})
-    public void testMatchPlayer_invalidPlayerId(String invalidPlayerId) {
-        assertThrows(IllegalArgumentException.class, () -> lobbyService.matchPlayer(new IncomingPlayer(invalidPlayerId, 0)));
     }
 }

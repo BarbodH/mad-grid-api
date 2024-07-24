@@ -10,9 +10,9 @@ public class GameService {
     private final GameDao gameDao;
 
     public MultiplayerGame createMultiplayerGame(int gameMode, String userId1, String userId2) {
+        ArgumentValidator.validatePlayerId(userId1);
+        ArgumentValidator.validatePlayerId(userId2);
         ArgumentValidator.validateGameMode(gameMode);
-        ArgumentValidator.validateUserId(userId1);
-        ArgumentValidator.validateUserId(userId2);
 
         return gameDao.save(new MultiplayerGame(
                 String.format("%s_%s", userId1, userId2),
