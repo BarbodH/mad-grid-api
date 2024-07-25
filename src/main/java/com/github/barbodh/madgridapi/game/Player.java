@@ -1,15 +1,22 @@
 package com.github.barbodh.madgridapi.game;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Player {
     private String id;
     private int score;
+    private boolean playing;
+
+    public Player(String id) {
+        this.id = id;
+    }
+
+    public void incrementScore() {
+        score++;
+    }
 }

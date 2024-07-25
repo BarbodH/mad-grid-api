@@ -17,8 +17,12 @@ public class GameService {
         return gameDao.save(new MultiplayerGame(
                 String.format("%s_%s", playerId1, playerId2),
                 gameMode,
-                new Player(playerId1, 0),
-                new Player(playerId2, 0)
+                new Player(playerId1),
+                new Player(playerId2)
         ));
+    }
+
+    public MultiplayerGame updateGame(GameUpdate gameUpdate) {
+        return null;
     }
 }

@@ -20,4 +20,8 @@ public class GameDao {
                 .update(Collections.singletonMap("activeMultiplayerGames." + multiplayerGame.getId(), multiplayerGame));
         return multiplayerGame;
     }
+
+    public MultiplayerGame findById(String id) {
+        return null;
+    }
 }
