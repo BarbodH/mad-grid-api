@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,7 +22,11 @@ public class GameDao {
         return multiplayerGame;
     }
 
-    public MultiplayerGame findById(String id) {
-        return null;
+    public Optional<MultiplayerGame> findById(String id) {
+        return Optional.empty();
+    }
+
+    public void deleteById(String id) {
+
     }
 }
