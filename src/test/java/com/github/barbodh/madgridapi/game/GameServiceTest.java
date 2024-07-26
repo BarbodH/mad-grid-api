@@ -12,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -61,12 +60,13 @@ public class GameServiceTest {
         var player2 = new Player("987", 9, true);
         var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player1.getId(), true);
-        when(gameDao.findById(player1.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2)));
+        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
         var updatedGame = gameService.updateGame(gameUpdate);
         player1.incrementScore();
 
         verify(gameDao).save(updatedGame);
+        verify(gameDao, times(0)).deleteById(anyString());
         assertEquals(game, updatedGame);
     }
 
@@ -76,12 +76,13 @@ public class GameServiceTest {
         var player2 = new Player("987", 8, true);
         var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player2.getId(), true);
-        when(gameDao.findById(player2.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2)));
+        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
         var updatedGame = gameService.updateGame(gameUpdate);
         player2.incrementScore();
         game.finish();
 
+        verify(gameDao, times(0)).save(any(MultiplayerGame.class));
         verify(gameDao).deleteById(game.getId());
         assertEquals(game, updatedGame);
     }
@@ -93,12 +94,13 @@ public class GameServiceTest {
         var player2 = new Player("987", 9, true);
         var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player1.getId(), false);
-        when(gameDao.findById(player1.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2)));
+        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
         var updatedGame = gameService.updateGame(gameUpdate);
         player1.setPlaying(false);
 
         verify(gameDao).save(updatedGame);
+        verify(gameDao, times(0)).deleteById(anyString());
         assertEquals(game, updatedGame);
     }
 
@@ -108,11 +110,12 @@ public class GameServiceTest {
         var player2 = new Player("987", 8, true);
         var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player2.getId(), false);
-        when(gameDao.findById(player1.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2)));
+        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
         var updatedGame = gameService.updateGame(gameUpdate);
         game.finish();
 
+        verify(gameDao, times(0)).save(any(MultiplayerGame.class));
         verify(gameDao).deleteById(game.getId());
         assertEquals(game, updatedGame);
     }
@@ -122,8 +125,12 @@ public class GameServiceTest {
         var finishedPlayer = new Player("123", 9, false);
         var player = new Player("987", 8, true);
         var game = new MultiplayerGame(String.format("%s_%s", finishedPlayer.getId(), player.getId()), 0, finishedPlayer, player, true);
+        var gameUpdate = new GameUpdate(game.getId(), finishedPlayer.getId(), false);
+        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), finishedPlayer, player, true)));
 
-        assertThrows(ScoreUpdateNotAllowedException.class, () -> new GameUpdate(game.getId(), finishedPlayer.getId(), false));
+        verify(gameDao, times(0)).save(any(MultiplayerGame.class));
+        verify(gameDao, times(0)).deleteById(anyString());
+        assertThrows(ScoreUpdateNotAllowedException.class, () -> gameService.updateGame(gameUpdate));
     }
 
     @Test
@@ -132,7 +139,7 @@ public class GameServiceTest {
         var player2 = new Player("987", 8, true);
         var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player2.getId(), true);
-        when(gameDao.findById(player1.getId())).thenReturn(Optional.empty());
+        when(gameDao.findById(game.getId())).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> gameService.updateGame(gameUpdate));
     }
@@ -144,7 +151,7 @@ public class GameServiceTest {
         var player3 = new Player("456", 9, true);
         var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player3.getId(), true);
-        when(gameDao.findById(player1.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2)));
+        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
         assertThrows(IllegalArgumentException.class, () -> gameService.updateGame(gameUpdate));
     }
