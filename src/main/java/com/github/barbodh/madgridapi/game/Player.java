@@ -14,6 +14,7 @@ public class Player {
 
     public Player(String id) {
         this.id = id;
+        this.playing = true;
     }
 
     public void incrementScore() {

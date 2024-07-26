@@ -52,6 +52,9 @@ public class GameServiceTest {
         assertEquals(playerId2, multiplayerGame.getPlayer2().getId());
         assertEquals(0, multiplayerGame.getPlayer1().getScore());
         assertEquals(0, multiplayerGame.getPlayer2().getScore());
+        assertTrue(multiplayerGame.isActive());
+        assertTrue(multiplayerGame.getPlayer1().isPlaying());
+        assertTrue(multiplayerGame.getPlayer2().isPlaying());
     }
 
     @Test

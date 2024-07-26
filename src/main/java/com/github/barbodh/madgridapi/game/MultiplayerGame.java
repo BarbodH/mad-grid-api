@@ -19,6 +19,7 @@ public class MultiplayerGame {
         this.gameMode = gameMode;
         this.player1 = player1;
         this.player2 = player2;
+        this.active = true;
     }
 
     public void finish() {
