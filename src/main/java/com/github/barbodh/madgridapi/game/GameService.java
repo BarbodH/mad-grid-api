@@ -1,8 +1,11 @@
 package com.github.barbodh.madgridapi.game;
 
+import com.github.barbodh.madgridapi.exception.ScoreUpdateNotAllowedException;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,40 @@ public class GameService {
     }
 
     public MultiplayerGame updateGame(GameUpdate gameUpdate) {
-        return null;
+        return gameDao.findById(gameUpdate.getGameId())
+                .map(game -> {
+                    var player = Stream.of(game.getPlayer1(), game.getPlayer2())
+                            .filter(p -> p.getId().equals(gameUpdate.getPlayerId()))
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("Player not found. Provided ID: " + gameUpdate.getPlayerId()));
+
+                    if (!player.isPlaying()) {
+                        throw new ScoreUpdateNotAllowedException();
+                    }
+
+                    var score1 = game.getPlayer1().getScore();
+                    var score2 = game.getPlayer2().getScore();
+                    var playerScore = player.getScore();
+
+                    if (gameUpdate.isResult()) {
+                        player.incrementScore();
+
+                        if (Math.abs(score1 - score2) == 4 && (playerScore > score1 || playerScore > score2)) {
+                            game.finish();
+                            gameDao.deleteById(gameUpdate.getGameId());
+                            return game;
+                        }
+                    } else if (playerScore < score1 || playerScore < score2) {
+                        game.finish();
+                        gameDao.deleteById(gameUpdate.getGameId());
+                        return game;
+                    } else {
+                        player.setPlaying(false);
+                    }
+
+                    gameDao.save(game);
+                    return game;
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Game not found. Provided ID: " + gameUpdate.getGameId()));
     }
 }
