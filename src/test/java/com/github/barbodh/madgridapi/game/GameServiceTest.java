@@ -141,7 +141,8 @@ public class GameServiceTest {
         var gameUpdate = new GameUpdate(game.getId(), player2.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> gameService.updateGame(gameUpdate));
+        var exception = assertThrows(IllegalArgumentException.class, () -> gameService.updateGame(gameUpdate));
+        assertTrue(exception.getMessage().contains(game.getId()));
     }
 
     @Test
@@ -153,6 +154,7 @@ public class GameServiceTest {
         var gameUpdate = new GameUpdate(game.getId(), player3.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
-        assertThrows(IllegalArgumentException.class, () -> gameService.updateGame(gameUpdate));
+        var exception = assertThrows(IllegalArgumentException.class, () -> gameService.updateGame(gameUpdate));
+        assertTrue(exception.getMessage().contains(gameUpdate.getPlayerId()));
     }
 }
