@@ -5,12 +5,14 @@ import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,10 +59,19 @@ public class GameServiceTest {
         assertTrue(multiplayerGame.getPlayer2().isPlaying());
     }
 
-    @Test
-    public void testUpdateGame_resultTrue() {
-        var player1 = new Player("123", 8, true);
-        var player2 = new Player("987", 9, true);
+    private static Stream<Arguments> provideArgs_testUpdateGame_resultTrue() {
+        return Stream.of(
+                Arguments.of(5, 8, false),
+                Arguments.of(8, 5, false),
+                Arguments.of(8, 4, true)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideArgs_testUpdateGame_resultTrue")
+    public void testUpdateGame_resultTrue(int score1, int score2, boolean finishGame) {
+        var player1 = new Player("123", score1, true);
+        var player2 = new Player("987", score2, true);
         var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player1.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
@@ -68,59 +79,51 @@ public class GameServiceTest {
         var updatedGame = gameService.updateGame(gameUpdate);
         player1.incrementScore();
 
-        verify(gameDao).save(updatedGame);
-        verify(gameDao, times(0)).deleteById(anyString());
-        assertEquals(game, updatedGame);
+        if (finishGame) {
+            game.finish();
+
+            verify(gameDao, times(0)).save(any(MultiplayerGame.class));
+            verify(gameDao).deleteById(game.getId());
+            assertEquals(game, updatedGame);
+        } else {
+            verify(gameDao).save(updatedGame);
+            verify(gameDao, times(0)).deleteById(anyString());
+            assertEquals(game, updatedGame);
+        }
     }
 
-    @Test
-    public void testUpdateGame_resultTrue_exceededMaxScoreDifference() {
-        var player1 = new Player("123", 4, true);
-        var player2 = new Player("987", 8, true);
-        var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
-        var gameUpdate = new GameUpdate(game.getId(), player2.getId(), true);
-        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
-
-        var updatedGame = gameService.updateGame(gameUpdate);
-        player2.incrementScore();
-        game.finish();
-
-        verify(gameDao, times(0)).save(any(MultiplayerGame.class));
-        verify(gameDao).deleteById(game.getId());
-        assertEquals(game, updatedGame);
+    private static Stream<Arguments> provideArgs_testUpdateGame_resultFalse() {
+        return Stream.of(
+                Arguments.of(8, 9, true),
+                Arguments.of(8, 8, false),
+                Arguments.of(8, 7, false)
+        );
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {9, 10})
-    public void testUpdateGame_resultFalse_leadingOrTie(int score) {
-        var player1 = new Player("123", score, true);
-        var player2 = new Player("987", 9, true);
+    @MethodSource("provideArgs_testUpdateGame_resultFalse")
+    public void testUpdateGame_resultFalse(int score1, int score2, boolean finishGame) {
+        var player1 = new Player("123", score1, true);
+        var player2 = new Player("987", score2, true);
         var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player1.getId(), false);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
         var updatedGame = gameService.updateGame(gameUpdate);
-        player1.setPlaying(false);
 
-        verify(gameDao).save(updatedGame);
-        verify(gameDao, times(0)).deleteById(anyString());
-        assertEquals(game, updatedGame);
-    }
+        if (finishGame) {
+            game.finish();
 
-    @Test
-    public void testUpdateGame_resultFalse_trailing() {
-        var player1 = new Player("123", 9, true);
-        var player2 = new Player("987", 8, true);
-        var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
-        var gameUpdate = new GameUpdate(game.getId(), player2.getId(), false);
-        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
+            verify(gameDao, times(0)).save(any(MultiplayerGame.class));
+            verify(gameDao).deleteById(game.getId());
+            assertEquals(game, updatedGame);
+        } else {
+            player1.setPlaying(false);
 
-        var updatedGame = gameService.updateGame(gameUpdate);
-        game.finish();
-
-        verify(gameDao, times(0)).save(any(MultiplayerGame.class));
-        verify(gameDao).deleteById(game.getId());
-        assertEquals(game, updatedGame);
+            verify(gameDao).save(updatedGame);
+            verify(gameDao, times(0)).deleteById(anyString());
+            assertEquals(game, updatedGame);
+        }
     }
 
     @Test
