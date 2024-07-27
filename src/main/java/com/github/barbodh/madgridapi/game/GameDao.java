@@ -1,32 +1,31 @@
 package com.github.barbodh.madgridapi.game;
 
+import com.github.barbodh.madgridapi.util.FirestoreUtil;
 import com.google.cloud.firestore.Firestore;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class GameDao {
     private final Firestore firestore;
-    @Value("${firebase.collection.name}")
-    private final String collectionName;
+    private final String collectionName = "activeGames";
 
-    public MultiplayerGame save(MultiplayerGame multiplayerGame) {
-        firestore.collection(collectionName)
-                .document("lobby")
-                .update(Collections.singletonMap("activeMultiplayerGames." + multiplayerGame.getId(), multiplayerGame));
-        return multiplayerGame;
+    public void save(MultiplayerGame multiplayerGame) {
+        var future = firestore.collection(collectionName).document(multiplayerGame.getId()).set(multiplayerGame);
+        FirestoreUtil.awaitCompletion(future);
     }
 
     public Optional<MultiplayerGame> findById(String id) {
-        return Optional.empty();
+        var future = firestore.collection(collectionName).document(id).get();
+        var documentSnapshot = FirestoreUtil.awaitCompletion(future);
+        return Optional.ofNullable(documentSnapshot.toObject(MultiplayerGame.class));
     }
 
     public void deleteById(String id) {
-
+        var future = firestore.collection(collectionName).document(id).delete();
+        FirestoreUtil.awaitCompletion(future);
     }
 }

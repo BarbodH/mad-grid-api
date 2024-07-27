@@ -44,7 +44,6 @@ public class GameServiceTest {
         var gameMode = 2;
         var playerId1 = "31028";
         var playerId2 = "60682";
-        when(gameDao.save(any(MultiplayerGame.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var multiplayerGame = gameService.createMultiplayerGame(gameMode, playerId1, playerId2);
 

@@ -17,12 +17,15 @@ public class GameService {
         ArgumentValidator.validatePlayerId(playerId2);
         ArgumentValidator.validateGameMode(gameMode);
 
-        return gameDao.save(new MultiplayerGame(
+        var game = new MultiplayerGame(
                 String.format("%s_%s", playerId1, playerId2),
                 gameMode,
                 new Player(playerId1),
                 new Player(playerId2)
-        ));
+        );
+        gameDao.save(game);
+
+        return game;
     }
 
     public MultiplayerGame updateGame(GameUpdate gameUpdate) {
