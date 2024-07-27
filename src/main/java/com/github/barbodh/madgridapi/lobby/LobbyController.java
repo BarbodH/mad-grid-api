@@ -6,8 +6,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.util.concurrent.ExecutionException;
-
 @Controller
 @RequiredArgsConstructor
 public class LobbyController {
@@ -15,7 +13,7 @@ public class LobbyController {
     private final LobbyService lobbyService;
 
     @MessageMapping("/seek-opponent")
-    public void handleIncomingUser(@Payload IncomingPlayer incomingPlayer) throws ExecutionException, InterruptedException {
+    public void handleIncomingUser(@Payload IncomingPlayer incomingPlayer) {
         final String notificationUrl = "/lobby/notify";
         lobbyService.matchPlayer(incomingPlayer).ifPresentOrElse(
                 multiplayerGame -> {

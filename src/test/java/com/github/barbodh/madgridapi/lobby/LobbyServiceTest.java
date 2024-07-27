@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +26,7 @@ public class LobbyServiceTest {
     private LobbyService lobbyService;
 
     @Test
-    public void testMatchPlayer_exceptionHandling() throws ExecutionException, InterruptedException {
+    public void testMatchPlayer_exceptionHandling() {
         try (var mockedArgumentValidator = mockStatic(ArgumentValidator.class)) {
             var incomingPlayer = new IncomingPlayer("123", 0);
             lobbyService.matchPlayer(incomingPlayer);
@@ -38,33 +37,33 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void testMatchPlayer_opponentFound() throws ExecutionException, InterruptedException {
+    public void testMatchPlayer_opponentFound() {
         var incomingPlayer = new IncomingPlayer("123", 0);
         var opponent = new IncomingPlayer("987", 0);
         var expectedMultiplayerGameInstance = new MultiplayerGame();
         when(gameService.createMultiplayerGame(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId()))
                 .thenReturn(expectedMultiplayerGameInstance);
-        when(lobbyDao.getUnmatchedPlayer(incomingPlayer)).thenReturn(Optional.of(opponent));
+        when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.of(opponent));
 
         var multiplayerGame = lobbyService.matchPlayer(incomingPlayer);
 
         verify(gameService).createMultiplayerGame(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
-        verify(lobbyDao).removeUnmatchedPlayer(opponent);
-        verify(lobbyDao, times(0)).queuePlayer(any(IncomingPlayer.class));
+        verify(lobbyDao).removeById(opponent.getId());
+        verify(lobbyDao, times(0)).save(any(IncomingPlayer.class));
         assertTrue(multiplayerGame.isPresent());
         assertEquals(expectedMultiplayerGameInstance, multiplayerGame.get());
     }
 
     @Test
-    public void testMatchPlayer_opponentNotFound() throws ExecutionException, InterruptedException {
+    public void testMatchPlayer_opponentNotFound() {
         var incomingPlayer = new IncomingPlayer("123", 0);
-        when(lobbyDao.getUnmatchedPlayer(incomingPlayer)).thenReturn(Optional.empty());
+        when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.empty());
 
         var multiplayerGame = lobbyService.matchPlayer(incomingPlayer);
 
         verify(gameService, times(0)).createMultiplayerGame(anyInt(), anyString(), anyString());
-        verify(lobbyDao, times(0)).removeUnmatchedPlayer(any(IncomingPlayer.class));
-        verify(lobbyDao).queuePlayer(incomingPlayer);
+        verify(lobbyDao, times(0)).removeById(any(String.class));
+        verify(lobbyDao).save(incomingPlayer);
         assertTrue(multiplayerGame.isEmpty());
     }
 }

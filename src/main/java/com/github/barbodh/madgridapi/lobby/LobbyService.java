@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -15,17 +14,17 @@ public class LobbyService {
     private final GameService gameService;
     private final LobbyDao lobbyDao;
 
-    public Optional<MultiplayerGame> matchPlayer(IncomingPlayer incomingPlayer) throws ExecutionException, InterruptedException {
+    public Optional<MultiplayerGame> matchPlayer(IncomingPlayer incomingPlayer) {
         ArgumentValidator.validatePlayerId(incomingPlayer.getId());
         ArgumentValidator.validateGameMode(incomingPlayer.getGameMode());
 
-        return lobbyDao.getUnmatchedPlayer(incomingPlayer)
+        return lobbyDao.findOpponent(incomingPlayer)
                 .map(opponent -> {
-                    lobbyDao.removeUnmatchedPlayer(opponent);
+                    lobbyDao.removeById(opponent.getId());
                     return gameService.createMultiplayerGame(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
                 })
                 .or(() -> {
-                    lobbyDao.queuePlayer(incomingPlayer);
+                    lobbyDao.save(incomingPlayer);
                     return Optional.empty();
                 });
     }
