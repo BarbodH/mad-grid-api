@@ -1,8 +1,9 @@
 package com.github.barbodh.madgridapi.integration;
 
-import com.github.barbodh.madgridapi.game.GameUpdate;
-import com.github.barbodh.madgridapi.game.MultiplayerGame;
-import com.github.barbodh.madgridapi.lobby.IncomingPlayer;
+import com.github.barbodh.madgridapi.game.model.GameUpdate;
+import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
+import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
+import com.github.barbodh.madgridapi.lobby.model.LobbyNotification;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,6 +50,11 @@ public class PublishToServerTest {
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
                 getLatch().countDown();
+            }
+
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return LobbyNotification.class;
             }
         };
 

@@ -1,4 +1,4 @@
-package com.github.barbodh.madgridapi.lobby;
+package com.github.barbodh.madgridapi.lobby.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,5 +1,8 @@
-package com.github.barbodh.madgridapi.lobby;
+package com.github.barbodh.madgridapi.lobby.controller;
 
+import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
+import com.github.barbodh.madgridapi.lobby.model.LobbyNotification;
+import com.github.barbodh.madgridapi.lobby.service.LobbyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;

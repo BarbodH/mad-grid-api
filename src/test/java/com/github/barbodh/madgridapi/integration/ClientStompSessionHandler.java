@@ -1,6 +1,5 @@
 package com.github.barbodh.madgridapi.integration;
 
-import com.github.barbodh.madgridapi.lobby.LobbyNotification;
 import lombok.Getter;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -37,7 +36,7 @@ public class ClientStompSessionHandler implements StompSessionHandler {
 
     @Override
     public Type getPayloadType(StompHeaders headers) {
-        return LobbyNotification.class;
+        return Object.class;
     }
 
     @Override

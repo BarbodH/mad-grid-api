@@ -1,7 +1,9 @@
-package com.github.barbodh.madgridapi.lobby;
+package com.github.barbodh.madgridapi.lobby.service;
 
-import com.github.barbodh.madgridapi.game.GameService;
-import com.github.barbodh.madgridapi.game.MultiplayerGame;
+import com.github.barbodh.madgridapi.game.service.GameService;
+import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
+import com.github.barbodh.madgridapi.lobby.dao.LobbyDao;
+import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

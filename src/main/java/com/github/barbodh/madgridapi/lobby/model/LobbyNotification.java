@@ -1,6 +1,6 @@
-package com.github.barbodh.madgridapi.lobby;
+package com.github.barbodh.madgridapi.lobby.model;
 
-import com.github.barbodh.madgridapi.game.MultiplayerGame;
+import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import lombok.Getter;
 
 @Getter

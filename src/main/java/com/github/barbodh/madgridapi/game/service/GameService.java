@@ -1,6 +1,10 @@
-package com.github.barbodh.madgridapi.game;
+package com.github.barbodh.madgridapi.game.service;
 
 import com.github.barbodh.madgridapi.exception.ScoreUpdateNotAllowedException;
+import com.github.barbodh.madgridapi.game.model.GameUpdate;
+import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
+import com.github.barbodh.madgridapi.game.model.Player;
+import com.github.barbodh.madgridapi.game.dao.GameDao;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

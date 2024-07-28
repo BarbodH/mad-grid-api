@@ -1,6 +1,11 @@
 package com.github.barbodh.madgridapi.game;
 
 import com.github.barbodh.madgridapi.exception.ScoreUpdateNotAllowedException;
+import com.github.barbodh.madgridapi.game.dao.GameDao;
+import com.github.barbodh.madgridapi.game.model.GameUpdate;
+import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
+import com.github.barbodh.madgridapi.game.model.Player;
+import com.github.barbodh.madgridapi.game.service.GameService;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,5 +1,6 @@
-package com.github.barbodh.madgridapi.lobby;
+package com.github.barbodh.madgridapi.lobby.dao;
 
+import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.util.FirestoreUtil;
 import com.google.cloud.firestore.Firestore;
 import lombok.RequiredArgsConstructor;

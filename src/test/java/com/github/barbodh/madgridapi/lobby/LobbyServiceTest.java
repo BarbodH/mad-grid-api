@@ -1,7 +1,10 @@
 package com.github.barbodh.madgridapi.lobby;
 
-import com.github.barbodh.madgridapi.game.GameService;
-import com.github.barbodh.madgridapi.game.MultiplayerGame;
+import com.github.barbodh.madgridapi.game.service.GameService;
+import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
+import com.github.barbodh.madgridapi.lobby.dao.LobbyDao;
+import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
+import com.github.barbodh.madgridapi.lobby.service.LobbyService;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,5 +1,6 @@
-package com.github.barbodh.madgridapi.game;
+package com.github.barbodh.madgridapi.game.dao;
 
+import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.util.FirestoreUtil;
 import com.google.cloud.firestore.Firestore;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.github.barbodh.madgridapi.game;
+package com.github.barbodh.madgridapi.game.model;
 
 import lombok.*;
 

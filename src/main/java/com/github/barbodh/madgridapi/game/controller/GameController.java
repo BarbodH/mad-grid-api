@@ -1,5 +1,7 @@
-package com.github.barbodh.madgridapi.game;
+package com.github.barbodh.madgridapi.game.controller;
 
+import com.github.barbodh.madgridapi.game.service.GameService;
+import com.github.barbodh.madgridapi.game.model.GameUpdate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
