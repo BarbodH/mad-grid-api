@@ -4,7 +4,7 @@ import com.github.barbodh.madgridapi.game.service.GameService;
 import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.lobby.dao.LobbyDao;
 import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
-import com.github.barbodh.madgridapi.lobby.service.LobbyService;
+import com.github.barbodh.madgridapi.lobby.service.LobbyServiceImpl;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,13 +26,13 @@ public class LobbyServiceTest {
     @Mock
     private GameService gameService;
     @InjectMocks
-    private LobbyService lobbyService;
+    private LobbyServiceImpl lobbyServiceImpl;
 
     @Test
     public void testMatchPlayer_exceptionHandling() {
         try (var mockedArgumentValidator = mockStatic(ArgumentValidator.class)) {
             var incomingPlayer = new IncomingPlayer("123", 0);
-            lobbyService.matchPlayer(incomingPlayer);
+            lobbyServiceImpl.matchPlayer(incomingPlayer);
 
             mockedArgumentValidator.verify(() -> ArgumentValidator.validatePlayerId(incomingPlayer.getId()));
             mockedArgumentValidator.verify(() -> ArgumentValidator.validateGameMode(incomingPlayer.getGameMode()));
@@ -48,10 +48,10 @@ public class LobbyServiceTest {
                 .thenReturn(expectedMultiplayerGameInstance);
         when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.of(opponent));
 
-        var multiplayerGame = lobbyService.matchPlayer(incomingPlayer);
+        var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
         verify(gameService).create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
-        verify(lobbyDao).removeById(opponent.getId());
+        verify(lobbyDao).deleteById(opponent.getId());
         verify(lobbyDao, times(0)).save(any(IncomingPlayer.class));
         assertTrue(multiplayerGame.isPresent());
         assertEquals(expectedMultiplayerGameInstance, multiplayerGame.get());
@@ -62,10 +62,10 @@ public class LobbyServiceTest {
         var incomingPlayer = new IncomingPlayer("123", 0);
         when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.empty());
 
-        var multiplayerGame = lobbyService.matchPlayer(incomingPlayer);
+        var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
         verify(gameService, times(0)).create(anyInt(), anyString(), anyString());
-        verify(lobbyDao, times(0)).removeById(any(String.class));
+        verify(lobbyDao, times(0)).deleteById(any(String.class));
         verify(lobbyDao).save(incomingPlayer);
         assertTrue(multiplayerGame.isEmpty());
     }
