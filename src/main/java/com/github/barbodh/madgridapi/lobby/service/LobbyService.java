@@ -23,7 +23,7 @@ public class LobbyService {
         return lobbyDao.findOpponent(incomingPlayer)
                 .map(opponent -> {
                     lobbyDao.removeById(opponent.getId());
-                    return gameService.createMultiplayerGame(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
+                    return gameService.create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
                 })
                 .or(() -> {
                     lobbyDao.save(incomingPlayer);

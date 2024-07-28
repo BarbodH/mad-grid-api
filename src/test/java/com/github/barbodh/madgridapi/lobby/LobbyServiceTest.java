@@ -44,13 +44,13 @@ public class LobbyServiceTest {
         var incomingPlayer = new IncomingPlayer("123", 0);
         var opponent = new IncomingPlayer("987", 0);
         var expectedMultiplayerGameInstance = new MultiplayerGame();
-        when(gameService.createMultiplayerGame(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId()))
+        when(gameService.create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId()))
                 .thenReturn(expectedMultiplayerGameInstance);
         when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.of(opponent));
 
         var multiplayerGame = lobbyService.matchPlayer(incomingPlayer);
 
-        verify(gameService).createMultiplayerGame(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
+        verify(gameService).create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
         verify(lobbyDao).removeById(opponent.getId());
         verify(lobbyDao, times(0)).save(any(IncomingPlayer.class));
         assertTrue(multiplayerGame.isPresent());
@@ -64,7 +64,7 @@ public class LobbyServiceTest {
 
         var multiplayerGame = lobbyService.matchPlayer(incomingPlayer);
 
-        verify(gameService, times(0)).createMultiplayerGame(anyInt(), anyString(), anyString());
+        verify(gameService, times(0)).create(anyInt(), anyString(), anyString());
         verify(lobbyDao, times(0)).removeById(any(String.class));
         verify(lobbyDao).save(incomingPlayer);
         assertTrue(multiplayerGame.isEmpty());

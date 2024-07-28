@@ -16,7 +16,7 @@ public class GameController {
 
     @MessageMapping("/update")
     public void handleGameUpdate(@Payload GameUpdate gameUpdate) {
-        var updatedGame = gameService.updateGame(gameUpdate);
+        var updatedGame = gameService.update(gameUpdate);
         messagingTemplate.convertAndSendToUser(gameUpdate.getPlayerId(), "/game/notify", updatedGame);
     }
 }

@@ -5,7 +5,7 @@ import com.github.barbodh.madgridapi.game.dao.GameDao;
 import com.github.barbodh.madgridapi.game.model.GameUpdate;
 import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.game.model.Player;
-import com.github.barbodh.madgridapi.game.service.GameService;
+import com.github.barbodh.madgridapi.game.service.GameServiceImpl;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +28,7 @@ public class GameServiceTest {
     @Mock
     private GameDao gameDao;
     @InjectMocks
-    private GameService gameService;
+    private GameServiceImpl gameServiceImpl;
 
     @Test
     public void testCreateMultiplayerGame_exceptionHandling() {
@@ -36,7 +36,7 @@ public class GameServiceTest {
             var gameMode = 2;
             var playerId1 = "31028";
             var playerId2 = "60682";
-            gameService.createMultiplayerGame(gameMode, playerId1, playerId2);
+            gameServiceImpl.create(gameMode, playerId1, playerId2);
 
             mockedArgumentValidator.verify(() -> ArgumentValidator.validateGameMode(gameMode));
             mockedArgumentValidator.verify(() -> ArgumentValidator.validatePlayerId(playerId1));
@@ -50,7 +50,7 @@ public class GameServiceTest {
         var playerId1 = "31028";
         var playerId2 = "60682";
 
-        var multiplayerGame = gameService.createMultiplayerGame(gameMode, playerId1, playerId2);
+        var multiplayerGame = gameServiceImpl.create(gameMode, playerId1, playerId2);
 
         assertEquals(String.format("%s_%s", playerId1, playerId2), multiplayerGame.getId());
         assertEquals(gameMode, multiplayerGame.getGameMode());
@@ -80,7 +80,7 @@ public class GameServiceTest {
         var gameUpdate = new GameUpdate(game.getId(), player1.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
-        var updatedGame = gameService.updateGame(gameUpdate);
+        var updatedGame = gameServiceImpl.update(gameUpdate);
         player1.incrementScore();
 
         if (finishGame) {
@@ -113,7 +113,7 @@ public class GameServiceTest {
         var gameUpdate = new GameUpdate(game.getId(), player1.getId(), false);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
-        var updatedGame = gameService.updateGame(gameUpdate);
+        var updatedGame = gameServiceImpl.update(gameUpdate);
 
         if (finishGame) {
             game.finish();
@@ -140,7 +140,7 @@ public class GameServiceTest {
 
         verify(gameDao, times(0)).save(any(MultiplayerGame.class));
         verify(gameDao, times(0)).deleteById(anyString());
-        assertThrows(ScoreUpdateNotAllowedException.class, () -> gameService.updateGame(gameUpdate));
+        assertThrows(ScoreUpdateNotAllowedException.class, () -> gameServiceImpl.update(gameUpdate));
     }
 
     @Test
@@ -151,7 +151,7 @@ public class GameServiceTest {
         var gameUpdate = new GameUpdate(game.getId(), player2.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.empty());
 
-        var exception = assertThrows(IllegalArgumentException.class, () -> gameService.updateGame(gameUpdate));
+        var exception = assertThrows(IllegalArgumentException.class, () -> gameServiceImpl.update(gameUpdate));
         assertTrue(exception.getMessage().contains(game.getId()));
     }
 
@@ -164,7 +164,7 @@ public class GameServiceTest {
         var gameUpdate = new GameUpdate(game.getId(), player3.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
-        var exception = assertThrows(IllegalArgumentException.class, () -> gameService.updateGame(gameUpdate));
+        var exception = assertThrows(IllegalArgumentException.class, () -> gameServiceImpl.update(gameUpdate));
         assertTrue(exception.getMessage().contains(gameUpdate.getPlayerId()));
     }
 }
