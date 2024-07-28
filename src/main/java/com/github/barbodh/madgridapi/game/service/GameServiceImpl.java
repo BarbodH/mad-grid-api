@@ -2,6 +2,7 @@ package com.github.barbodh.madgridapi.game.service;
 
 import com.github.barbodh.madgridapi.exception.ScoreUpdateNotAllowedException;
 import com.github.barbodh.madgridapi.game.dao.GameDao;
+import com.github.barbodh.madgridapi.game.dao.PlayerRegistryDao;
 import com.github.barbodh.madgridapi.game.model.GameUpdate;
 import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.game.model.Player;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class GameServiceImpl implements GameService {
     private final GameDao gameDao;
+    private final PlayerRegistryDao playerRegistryDao;
 
     @Override
     public MultiplayerGame create(int gameMode, String playerId1, String playerId2) {
@@ -28,6 +30,8 @@ public class GameServiceImpl implements GameService {
                 new Player(playerId2)
         );
         gameDao.save(game);
+        playerRegistryDao.update(playerId1);
+        playerRegistryDao.update(playerId2);
 
         return game;
     }
@@ -55,11 +59,15 @@ public class GameServiceImpl implements GameService {
                         if (Math.abs(score1 - score2) == 4 && (playerScore > score1 || playerScore > score2)) {
                             game.finish();
                             gameDao.deleteById(gameUpdate.getGameId());
+                            playerRegistryDao.delete(game.getPlayer1().getId());
+                            playerRegistryDao.delete(game.getPlayer2().getId());
                             return game;
                         }
                     } else if (playerScore < score1 || playerScore < score2) {
                         game.finish();
                         gameDao.deleteById(gameUpdate.getGameId());
+                        playerRegistryDao.delete(game.getPlayer1().getId());
+                        playerRegistryDao.delete(game.getPlayer2().getId());
                         return game;
                     } else {
                         player.setPlaying(false);
