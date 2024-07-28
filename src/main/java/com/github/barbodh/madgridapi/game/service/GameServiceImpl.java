@@ -6,6 +6,7 @@ import com.github.barbodh.madgridapi.game.model.GameUpdate;
 import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.game.model.Player;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
+import com.github.barbodh.madgridapi.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +19,10 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public MultiplayerGame create(int gameMode, String playerId1, String playerId2) {
-        ArgumentValidator.validatePlayerId(playerId1);
-        ArgumentValidator.validatePlayerId(playerId2);
         ArgumentValidator.validateGameMode(gameMode);
 
         var game = new MultiplayerGame(
-                String.format("%s_%s", playerId1, playerId2),
+                StringUtil.generateGameId(playerId1, playerId2),
                 gameMode,
                 new Player(playerId1),
                 new Player(playerId2)

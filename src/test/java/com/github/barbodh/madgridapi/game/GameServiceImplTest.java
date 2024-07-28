@@ -7,6 +7,7 @@ import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.game.model.Player;
 import com.github.barbodh.madgridapi.game.service.GameServiceImpl;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
+import com.github.barbodh.madgridapi.util.StringUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -52,7 +53,7 @@ public class GameServiceImplTest {
 
         var multiplayerGame = gameServiceImpl.create(gameMode, playerId1, playerId2);
 
-        assertEquals(String.format("%s_%s", playerId1, playerId2), multiplayerGame.getId());
+        assertEquals(StringUtil.generateGameId(playerId1, playerId2), multiplayerGame.getId());
         assertEquals(gameMode, multiplayerGame.getGameMode());
         assertEquals(playerId1, multiplayerGame.getPlayer1().getId());
         assertEquals(playerId2, multiplayerGame.getPlayer2().getId());
@@ -76,7 +77,7 @@ public class GameServiceImplTest {
     public void testUpdateGame_resultTrue(int score1, int score2, boolean finishGame) {
         var player1 = new Player("123", score1, true);
         var player2 = new Player("987", score2, true);
-        var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
+        var game = new MultiplayerGame(StringUtil.generateGameId(player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player1.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
@@ -109,7 +110,7 @@ public class GameServiceImplTest {
     public void testUpdateGame_resultFalse(int score1, int score2, boolean finishGame) {
         var player1 = new Player("123", score1, true);
         var player2 = new Player("987", score2, true);
-        var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
+        var game = new MultiplayerGame(StringUtil.generateGameId(player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player1.getId(), false);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
@@ -134,7 +135,7 @@ public class GameServiceImplTest {
     public void testUpdateGame_updateFinishedPlayer() {
         var finishedPlayer = new Player("123", 9, false);
         var player = new Player("987", 8, true);
-        var game = new MultiplayerGame(String.format("%s_%s", finishedPlayer.getId(), player.getId()), 0, finishedPlayer, player, true);
+        var game = new MultiplayerGame(StringUtil.generateGameId(finishedPlayer.getId(), player.getId()), 0, finishedPlayer, player, true);
         var gameUpdate = new GameUpdate(game.getId(), finishedPlayer.getId(), false);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), finishedPlayer, player, true)));
 
@@ -147,7 +148,7 @@ public class GameServiceImplTest {
     public void testUpdateGame_invalidGameId() {
         var player1 = new Player("123", 9, true);
         var player2 = new Player("987", 8, true);
-        var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
+        var game = new MultiplayerGame(StringUtil.generateGameId(player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player2.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.empty());
 
@@ -160,7 +161,7 @@ public class GameServiceImplTest {
         var player1 = new Player("123", 8, true);
         var player2 = new Player("987", 9, true);
         var player3 = new Player("456", 9, true);
-        var game = new MultiplayerGame(String.format("%s_%s", player1.getId(), player2.getId()), 0, player1, player2, true);
+        var game = new MultiplayerGame(StringUtil.generateGameId(player1.getId(), player2.getId()), 0, player1, player2, true);
         var gameUpdate = new GameUpdate(game.getId(), player3.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
