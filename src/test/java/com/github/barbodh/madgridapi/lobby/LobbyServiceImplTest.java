@@ -1,11 +1,11 @@
 package com.github.barbodh.madgridapi.lobby;
 
-import com.github.barbodh.madgridapi.game.dao.PlayerRegistryDao;
-import com.github.barbodh.madgridapi.game.service.GameService;
 import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
+import com.github.barbodh.madgridapi.game.service.GameService;
 import com.github.barbodh.madgridapi.lobby.dao.LobbyDao;
 import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.lobby.service.LobbyServiceImpl;
+import com.github.barbodh.madgridapi.registry.service.PlayerRegistryService;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,7 @@ public class LobbyServiceImplTest {
     @Mock
     private GameService gameService;
     @Mock
-    private PlayerRegistryDao playerRegistryDao;
+    private PlayerRegistryService playerRegistryService;
     @InjectMocks
     private LobbyServiceImpl lobbyServiceImpl;
 
@@ -40,7 +40,7 @@ public class LobbyServiceImplTest {
             mockedArgumentValidator.verify(() -> ArgumentValidator.validatePlayerId(incomingPlayer.getId()));
             mockedArgumentValidator.verify(() -> ArgumentValidator.validateGameMode(incomingPlayer.getGameMode()));
 
-            verify(playerRegistryDao).exists(incomingPlayer.getId());
+            verify(playerRegistryService).exists(incomingPlayer.getId());
         }
     }
 

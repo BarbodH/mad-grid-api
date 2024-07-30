@@ -2,11 +2,11 @@ package com.github.barbodh.madgridapi.game;
 
 import com.github.barbodh.madgridapi.exception.ScoreUpdateNotAllowedException;
 import com.github.barbodh.madgridapi.game.dao.GameDao;
-import com.github.barbodh.madgridapi.game.dao.PlayerRegistryDao;
 import com.github.barbodh.madgridapi.game.model.GameUpdate;
 import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.game.model.Player;
 import com.github.barbodh.madgridapi.game.service.GameServiceImpl;
+import com.github.barbodh.madgridapi.registry.service.PlayerRegistryService;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import com.github.barbodh.madgridapi.util.StringUtil;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ public class GameServiceImplTest {
     @Mock
     private GameDao gameDao;
     @Mock
-    private PlayerRegistryDao playerRegistryDao;
+    private PlayerRegistryService playerRegistryService;
     @InjectMocks
     private GameServiceImpl gameServiceImpl;
 
@@ -56,9 +56,9 @@ public class GameServiceImplTest {
 
         var multiplayerGame = gameServiceImpl.create(gameMode, playerId1, playerId2);
 
-        verify(playerRegistryDao).update(multiplayerGame.getPlayer1().getId());
-        verify(playerRegistryDao).update(multiplayerGame.getPlayer2().getId());
-        verify(playerRegistryDao, times(0)).delete(anyString());
+        verify(playerRegistryService).update(multiplayerGame.getPlayer1().getId());
+        verify(playerRegistryService).update(multiplayerGame.getPlayer2().getId());
+        verify(playerRegistryService, times(0)).delete(anyString());
         assertEquals(StringUtil.generateGameId(playerId1, playerId2), multiplayerGame.getId());
         assertEquals(gameMode, multiplayerGame.getGameMode());
         assertEquals(playerId1, multiplayerGame.getPlayer1().getId());
@@ -93,15 +93,15 @@ public class GameServiceImplTest {
         if (finishGame) {
             game.finish();
 
-            verify(playerRegistryDao, times(0)).update(anyString());
-            verify(playerRegistryDao).delete(game.getPlayer1().getId());
-            verify(playerRegistryDao).delete(game.getPlayer2().getId());
+            verify(playerRegistryService, times(0)).update(anyString());
+            verify(playerRegistryService).delete(game.getPlayer1().getId());
+            verify(playerRegistryService).delete(game.getPlayer2().getId());
             verify(gameDao, times(0)).save(any(MultiplayerGame.class));
             verify(gameDao).deleteById(game.getId());
             assertEquals(game, updatedGame);
         } else {
-            verify(playerRegistryDao, times(0)).update(anyString());
-            verify(playerRegistryDao, times(0)).delete(anyString());
+            verify(playerRegistryService, times(0)).update(anyString());
+            verify(playerRegistryService, times(0)).delete(anyString());
             verify(gameDao).save(updatedGame);
             verify(gameDao, times(0)).deleteById(anyString());
             assertEquals(game, updatedGame);
@@ -130,9 +130,9 @@ public class GameServiceImplTest {
         if (finishGame) {
             game.finish();
 
-            verify(playerRegistryDao, times(0)).update(anyString());
-            verify(playerRegistryDao).delete(game.getPlayer1().getId());
-            verify(playerRegistryDao).delete(game.getPlayer2().getId());
+            verify(playerRegistryService, times(0)).update(anyString());
+            verify(playerRegistryService).delete(game.getPlayer1().getId());
+            verify(playerRegistryService).delete(game.getPlayer2().getId());
             verify(gameDao, times(0)).save(any(MultiplayerGame.class));
             verify(gameDao, times(0)).save(any(MultiplayerGame.class));
             verify(gameDao).deleteById(game.getId());
@@ -140,8 +140,8 @@ public class GameServiceImplTest {
         } else {
             player1.setPlaying(false);
 
-            verify(playerRegistryDao, times(0)).update(anyString());
-            verify(playerRegistryDao, times(0)).delete(anyString());
+            verify(playerRegistryService, times(0)).update(anyString());
+            verify(playerRegistryService, times(0)).delete(anyString());
             verify(gameDao).save(updatedGame);
             verify(gameDao, times(0)).deleteById(anyString());
             assertEquals(game, updatedGame);
@@ -156,8 +156,8 @@ public class GameServiceImplTest {
         var gameUpdate = new GameUpdate(game.getId(), finishedPlayer.getId(), false);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), finishedPlayer, player, true)));
 
-        verify(playerRegistryDao, times(0)).update(anyString());
-        verify(playerRegistryDao, times(0)).delete(anyString());
+        verify(playerRegistryService, times(0)).update(anyString());
+        verify(playerRegistryService, times(0)).delete(anyString());
         verify(gameDao, times(0)).save(any(MultiplayerGame.class));
         verify(gameDao, times(0)).deleteById(anyString());
         assertThrows(ScoreUpdateNotAllowedException.class, () -> gameServiceImpl.update(gameUpdate));
@@ -171,8 +171,8 @@ public class GameServiceImplTest {
         var gameUpdate = new GameUpdate(game.getId(), player2.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.empty());
 
-        verify(playerRegistryDao, times(0)).update(anyString());
-        verify(playerRegistryDao, times(0)).delete(anyString());
+        verify(playerRegistryService, times(0)).update(anyString());
+        verify(playerRegistryService, times(0)).delete(anyString());
         var exception = assertThrows(IllegalArgumentException.class, () -> gameServiceImpl.update(gameUpdate));
         assertTrue(exception.getMessage().contains(game.getId()));
     }
@@ -186,8 +186,8 @@ public class GameServiceImplTest {
         var gameUpdate = new GameUpdate(game.getId(), player3.getId(), true);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
-        verify(playerRegistryDao, times(0)).update(anyString());
-        verify(playerRegistryDao, times(0)).delete(anyString());
+        verify(playerRegistryService, times(0)).update(anyString());
+        verify(playerRegistryService, times(0)).delete(anyString());
         var exception = assertThrows(IllegalArgumentException.class, () -> gameServiceImpl.update(gameUpdate));
         assertTrue(exception.getMessage().contains(gameUpdate.getPlayerId()));
     }

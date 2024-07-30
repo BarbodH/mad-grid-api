@@ -1,4 +1,4 @@
-package com.github.barbodh.madgridapi.game.dao;
+package com.github.barbodh.madgridapi.registry.dao;
 
 public interface PlayerRegistryDao {
     void update(String id);

@@ -1,6 +1,6 @@
-package com.github.barbodh.madgridapi.game.dao;
+package com.github.barbodh.madgridapi.registry.dao;
 
-import com.github.barbodh.madgridapi.game.model.PlayerRegistry;
+import com.github.barbodh.madgridapi.registry.model.PlayerRegistry;
 import com.github.barbodh.madgridapi.util.FirestoreUtil;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;

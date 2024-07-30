@@ -1,4 +1,4 @@
-package com.github.barbodh.madgridapi.game.model;
+package com.github.barbodh.madgridapi.registry.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
