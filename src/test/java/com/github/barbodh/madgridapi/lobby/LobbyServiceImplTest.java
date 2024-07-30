@@ -1,6 +1,7 @@
 package com.github.barbodh.madgridapi.lobby;
 
 import com.github.barbodh.madgridapi.BaseServiceTest;
+import com.github.barbodh.madgridapi.exception.PlayerAlreadyInGameException;
 import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.game.service.GameService;
 import com.github.barbodh.madgridapi.lobby.dao.LobbyDao;
@@ -16,8 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,5 +72,13 @@ public class LobbyServiceImplTest extends BaseServiceTest {
         verify(playerRegistryService).exists(incomingPlayer.getId());
         verify(lobbyDao).save(incomingPlayer);
         assertTrue(multiplayerGame.isEmpty());
+    }
+
+    @Test
+    public void testMatchPlayer_playerAlreadyInGame() {
+        var incomingPlayer = new IncomingPlayer("123", 0);
+        when(playerRegistryService.exists(incomingPlayer.getId())).thenReturn(true);
+
+        assertThrows(PlayerAlreadyInGameException.class, () -> lobbyServiceImpl.matchPlayer(incomingPlayer));
     }
 }
