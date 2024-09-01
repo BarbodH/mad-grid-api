@@ -7,6 +7,9 @@ import com.google.cloud.firestore.Firestore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
+import java.util.HashMap;
+
 @Repository
 @RequiredArgsConstructor
 public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
@@ -16,8 +19,17 @@ public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
 
     @Override
     public void update(String id) {
-        var future = firestore.collection(collectionName).document(documentName).update("ids", FieldValue.arrayUnion(id));
-        FirestoreUtil.awaitCompletion(future);
+        var documentReference = firestore.collection(collectionName).document(documentName);
+        var future = documentReference.get();
+        var documentSnapshot = FirestoreUtil.awaitCompletion(future);
+
+        if (documentSnapshot.exists()) {
+            documentReference.update("ids", FieldValue.arrayUnion(id));
+        } else {
+            var data = new HashMap<String, Object>();
+            data.put("ids", Collections.singletonList(id));
+            documentReference.set(data);
+        }
     }
 
     @Override
