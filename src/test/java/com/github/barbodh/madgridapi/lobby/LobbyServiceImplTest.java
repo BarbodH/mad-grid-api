@@ -81,4 +81,23 @@ public class LobbyServiceImplTest extends BaseServiceTest {
 
         assertThrows(PlayerAlreadyInGameException.class, () -> lobbyServiceImpl.matchPlayer(incomingPlayer));
     }
+
+    @Test
+    public void testRemovePlayer_basicArgumentValidation() {
+        skipUnverifiedMockInteractionCheck = true;
+        try (var mockedArgumentValidator = mockStatic(ArgumentValidator.class)) {
+            var playerId = "123";
+            lobbyServiceImpl.removePlayer(playerId);
+            mockedArgumentValidator.verify(() -> ArgumentValidator.validatePlayerId(playerId));
+        }
+    }
+
+    @Test
+    public void testRemovePlayer() {
+        var playerId = "123";
+
+        lobbyServiceImpl.removePlayer(playerId);
+
+        verify(lobbyDao).deleteById(playerId);
+    }
 }

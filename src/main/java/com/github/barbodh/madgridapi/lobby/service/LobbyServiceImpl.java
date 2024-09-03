@@ -38,4 +38,11 @@ public class LobbyServiceImpl implements LobbyService {
                     return Optional.empty();
                 });
     }
+
+    @Override
+    public void removePlayer(String playerId) {
+        ArgumentValidator.validatePlayerId(playerId);
+
+        lobbyDao.deleteById(playerId);
+    }
 }

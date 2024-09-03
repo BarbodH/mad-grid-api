@@ -38,4 +38,9 @@ public class LobbyController {
                 )
         );
     }
+
+    @MessageMapping("/exit-lobby")
+    public void exitLobby(String playerId) {
+        lobbyService.removePlayer(playerId);
+    }
 }

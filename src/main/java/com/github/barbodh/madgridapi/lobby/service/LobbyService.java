@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface LobbyService {
     Optional<MultiplayerGame> matchPlayer(IncomingPlayer incomingPlayer);
+
+    void removePlayer(String playerId);
 }
