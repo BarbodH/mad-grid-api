@@ -55,27 +55,32 @@ public class GameServiceImpl implements GameService {
 
                     if (gameUpdate.isResult()) {
                         player.incrementScore();
-
-                        if (Math.abs(score1 - score2) == 4 && (playerScore > score1 || playerScore > score2)) {
-                            game.finish();
-                            gameDao.deleteById(gameUpdate.getGameId());
-                            playerRegistryService.delete(game.getPlayer1().getId());
-                            playerRegistryService.delete(game.getPlayer2().getId());
-                            return game;
+                        if ((playerScore > score1 || playerScore > score2) // Player is leading
+                                && (!game.getPlayer1().isPlaying() || !game.getPlayer2().isPlaying())) { // AND other player (trailing) is inactive
+                            return finishGame(game, gameUpdate);
                         }
-                    } else if (playerScore < score1 || playerScore < score2) {
-                        game.finish();
-                        gameDao.deleteById(gameUpdate.getGameId());
-                        playerRegistryService.delete(game.getPlayer1().getId());
-                        playerRegistryService.delete(game.getPlayer2().getId());
-                        return game;
+                        if (Math.abs(score1 - score2) == 4 && (playerScore > score1 || playerScore > score2)) {
+                            return finishGame(game, gameUpdate);
+                        }
                     } else {
                         player.setPlaying(false);
+                        if ((playerScore < score1 || playerScore < score2) // Player is trailing
+                                || (!game.getPlayer1().isPlaying() && !game.getPlayer2().isPlaying())) { // OR neither player is active
+                            return finishGame(game, gameUpdate);
+                        }
                     }
 
                     gameDao.save(game);
                     return game;
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Game not found. Provided ID: " + gameUpdate.getGameId()));
+    }
+
+    private MultiplayerGame finishGame(MultiplayerGame multiplayerGame, GameUpdate gameUpdate) {
+        multiplayerGame.finish();
+        gameDao.deleteById(gameUpdate.getGameId());
+        playerRegistryService.delete(multiplayerGame.getPlayer1().getId());
+        playerRegistryService.delete(multiplayerGame.getPlayer2().getId());
+        return multiplayerGame;
     }
 }
