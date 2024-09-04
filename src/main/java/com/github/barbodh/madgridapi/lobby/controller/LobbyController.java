@@ -15,14 +15,15 @@ import org.springframework.stereotype.Controller;
 public class LobbyController {
     private final SimpMessagingTemplate messagingTemplate;
     private final LobbyService lobbyService;
+    private final HeartbeatManager heartbeatManager;
 
     @MessageMapping("/seek-opponent")
     public void handleIncomingUser(@Payload IncomingPlayer incomingPlayer) {
         final String notificationUrl = "/lobby/notify";
         lobbyService.matchPlayer(incomingPlayer).ifPresentOrElse(
                 multiplayerGame -> {
-                    HeartbeatManager.update(multiplayerGame.getPlayer1().getId());
-                    HeartbeatManager.update(multiplayerGame.getPlayer2().getId());
+                    heartbeatManager.update(multiplayerGame.getPlayer1().getId());
+                    heartbeatManager.update(multiplayerGame.getPlayer2().getId());
 
                     messagingTemplate.convertAndSendToUser(
                             multiplayerGame.getPlayer1().getId(),

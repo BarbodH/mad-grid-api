@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 public class GameController {
     private final SimpMessagingTemplate messagingTemplate;
     private final GameService gameService;
+    private final HeartbeatManager heartbeatManager;
 
     @MessageMapping("/update")
     public void handleGameUpdate(@Payload GameUpdate gameUpdate) {
@@ -24,6 +25,6 @@ public class GameController {
 
     @MessageMapping("/heartbeat")
     public void receivePlayerHeartbeat(String playerId) {
-        HeartbeatManager.update(playerId);
+        heartbeatManager.update(playerId);
     }
 }
