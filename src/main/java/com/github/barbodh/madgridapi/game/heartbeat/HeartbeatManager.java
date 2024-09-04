@@ -12,10 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class HeartbeatManager {
     private static final Map<String, Long> playerHeartbeats = new ConcurrentHashMap<>();
-    private static final long PLAYER_TIMEOUT_THRESHOLD = 10000;
+    private static final long PLAYER_TIMEOUT_THRESHOLD = 25000;
     private final ApplicationEventPublisher eventPublisher;
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 10000)
     public void check() {
         long currentTime = System.currentTimeMillis();
         playerHeartbeats.forEach((key, lastHeartbeatTime) -> {
