@@ -1,5 +1,6 @@
 package com.github.barbodh.madgridapi.lobby.controller;
 
+import com.github.barbodh.madgridapi.game.heartbeat.HeartbeatManager;
 import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.lobby.model.LobbyNotification;
 import com.github.barbodh.madgridapi.lobby.service.LobbyService;
@@ -14,12 +15,16 @@ import org.springframework.stereotype.Controller;
 public class LobbyController {
     private final SimpMessagingTemplate messagingTemplate;
     private final LobbyService lobbyService;
+    private final HeartbeatManager heartbeatManager;
 
     @MessageMapping("/seek-opponent")
     public void handleIncomingUser(@Payload IncomingPlayer incomingPlayer) {
         final String notificationUrl = "/lobby/notify";
         lobbyService.matchPlayer(incomingPlayer).ifPresentOrElse(
                 multiplayerGame -> {
+                    heartbeatManager.update(multiplayerGame.getId(), multiplayerGame.getPlayer1().getId());
+                    heartbeatManager.update(multiplayerGame.getId(), multiplayerGame.getPlayer2().getId());
+
                     messagingTemplate.convertAndSendToUser(
                             multiplayerGame.getPlayer1().getId(),
                             notificationUrl,
