@@ -31,7 +31,16 @@ public class GameController {
 
     @EventListener
     public void onPlayerTimeout(PlayerTimeoutEvent event) {
-        updateGame(new GameUpdate(event.getGameId(), event.getPlayerId(), false));
+        try {
+            updateGame(new GameUpdate(event.getGameId(), event.getPlayerId(), false));
+        } catch (IllegalArgumentException exception) {
+            // This block only catches and swallows IllegalArgumentException related to game ID
+            // The game might have already ended before the player timing out
+            // TODO: Investigate a cleaner solution or improve exception handling to be more robust; checking exception message is not ideal.
+            if (!exception.getMessage().contains(event.getGameId())) {
+                throw exception;
+            }
+        }
     }
 
     private void updateGame(GameUpdate gameUpdate) {
