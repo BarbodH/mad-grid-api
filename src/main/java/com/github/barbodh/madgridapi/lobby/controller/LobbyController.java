@@ -22,8 +22,8 @@ public class LobbyController {
         final String notificationUrl = "/lobby/notify";
         lobbyService.matchPlayer(incomingPlayer).ifPresentOrElse(
                 multiplayerGame -> {
-                    heartbeatManager.update(multiplayerGame.getPlayer1().getId());
-                    heartbeatManager.update(multiplayerGame.getPlayer2().getId());
+                    heartbeatManager.update(multiplayerGame.getId(), multiplayerGame.getPlayer1().getId());
+                    heartbeatManager.update(multiplayerGame.getId(), multiplayerGame.getPlayer2().getId());
 
                     messagingTemplate.convertAndSendToUser(
                             multiplayerGame.getPlayer1().getId(),
