@@ -1,5 +1,6 @@
 package com.github.barbodh.madgridapi.game.controller;
 
+import com.github.barbodh.madgridapi.game.heartbeat.HeartbeatManager;
 import com.github.barbodh.madgridapi.game.service.GameService;
 import com.github.barbodh.madgridapi.game.model.GameUpdate;
 import lombok.RequiredArgsConstructor;
@@ -19,5 +20,10 @@ public class GameController {
         var updatedGame = gameService.update(gameUpdate);
         messagingTemplate.convertAndSendToUser(updatedGame.getPlayer1().getId(), "/game/notify", updatedGame);
         messagingTemplate.convertAndSendToUser(updatedGame.getPlayer2().getId(), "/game/notify", updatedGame);
+    }
+
+    @MessageMapping("/heartbeat")
+    public void receivePlayerHeartbeat(String playerId) {
+        HeartbeatManager.update(playerId);
     }
 }

@@ -1,5 +1,6 @@
 package com.github.barbodh.madgridapi.lobby.controller;
 
+import com.github.barbodh.madgridapi.game.heartbeat.HeartbeatManager;
 import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.lobby.model.LobbyNotification;
 import com.github.barbodh.madgridapi.lobby.service.LobbyService;
@@ -20,6 +21,9 @@ public class LobbyController {
         final String notificationUrl = "/lobby/notify";
         lobbyService.matchPlayer(incomingPlayer).ifPresentOrElse(
                 multiplayerGame -> {
+                    HeartbeatManager.update(multiplayerGame.getPlayer1().getId());
+                    HeartbeatManager.update(multiplayerGame.getPlayer2().getId());
+
                     messagingTemplate.convertAndSendToUser(
                             multiplayerGame.getPlayer1().getId(),
                             notificationUrl,
