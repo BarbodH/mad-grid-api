@@ -11,8 +11,6 @@ import com.github.barbodh.madgridapi.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.Stream;
-
 @Service
 @RequiredArgsConstructor
 public class GameServiceImpl implements GameService {
@@ -40,32 +38,36 @@ public class GameServiceImpl implements GameService {
     public MultiplayerGame update(GameUpdate gameUpdate) {
         return gameDao.findById(gameUpdate.getGameId())
                 .map(game -> {
-                    var player = Stream.of(game.getPlayer1(), game.getPlayer2())
-                            .filter(p -> p.getId().equals(gameUpdate.getPlayerId()))
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalArgumentException("Player not found. Provided ID: " + gameUpdate.getPlayerId()));
+                    var player1 = game.getPlayer1();
+                    var player2 = game.getPlayer2();
+
+                    if (player1.getId().equals(player2.getId())) {
+                        throw new IllegalArgumentException(String.format("Players cannot have identical IDs.\nProvided players:\n%s\n%s", player1, player2));
+                    }
+                    if (!gameUpdate.getPlayerId().equals(player1.getId()) && !gameUpdate.getPlayerId().equals(player2.getId())) {
+                        throw new IllegalArgumentException("Player not found. Provided ID: " + gameUpdate.getPlayerId());
+                    }
+
+                    var player = gameUpdate.getPlayerId().equals(player1.getId()) ? player1 : player2;
 
                     if (!player.isPlaying()) {
                         throw new ScoreUpdateNotAllowedException();
                     }
 
-                    var score1 = game.getPlayer1().getScore();
-                    var score2 = game.getPlayer2().getScore();
-                    var playerScore = player.getScore();
-
                     if (gameUpdate.isResult()) {
                         player.incrementScore();
-                        if ((playerScore > score1 || playerScore > score2) // Player is leading
-                                && (!game.getPlayer1().isPlaying() || !game.getPlayer2().isPlaying())) { // AND other player (trailing) is inactive
+                        if ((player.getScore() > player1.getScore() || player.getScore() > player2.getScore()) // Player is leading
+                                && (!player1.isPlaying() || !player2.isPlaying())) { // AND other player (trailing) is inactive
                             return finishGame(game, gameUpdate);
                         }
-                        if (Math.abs(score1 - score2) == 4 && (playerScore > score1 || playerScore > score2)) {
+                        if (Math.abs(player1.getScore() - player2.getScore()) == 4
+                                && (player.getScore() > player1.getScore() || player.getScore() > player2.getScore())) {
                             return finishGame(game, gameUpdate);
                         }
                     } else {
                         player.setPlaying(false);
-                        if ((playerScore < score1 || playerScore < score2) // Player is trailing
-                                || (!game.getPlayer1().isPlaying() && !game.getPlayer2().isPlaying())) { // OR neither player is active
+                        if ((player.getScore() < player1.getScore() || player.getScore() < player2.getScore()) // Player is trailing
+                                || (!player1.isPlaying() && !player2.isPlaying())) { // OR neither player is active
                             return finishGame(game, gameUpdate);
                         }
                     }

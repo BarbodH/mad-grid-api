@@ -72,21 +72,31 @@ public class GameServiceImplTest extends BaseServiceTest {
         assertTrue(multiplayerGame.getPlayer2().isPlaying());
     }
 
-    private static Stream<Arguments> provideArgs_testUpdateGame_resultTrue() {
+    private static Stream<Arguments> provideArgs_testUpdateGame() {
         return Stream.of(
-                Arguments.of(5, 8, false),
-                Arguments.of(8, 5, false),
-                Arguments.of(8, 4, true)
+                Arguments.of(true, 5, 5, true, false),
+                Arguments.of(true, 5, 5, false, true),
+                Arguments.of(true, 4, 5, true, false),
+                Arguments.of(true, 4, 5, false, false),
+                Arguments.of(true, 3, 5, true, false),
+                Arguments.of(true, 3, 5, false, false),
+
+                Arguments.of(false, 6, 5, true, false),
+//                Arguments.of(false, 6, 5, false, true),
+                Arguments.of(false, 5, 5, true, false),
+                Arguments.of(false, 5, 5, false, true),
+                Arguments.of(false, 4, 5, true, true),
+                Arguments.of(false, 4, 5, false, true)
         );
     }
 
     @ParameterizedTest
-    @MethodSource("provideArgs_testUpdateGame_resultTrue")
-    public void testUpdateGame_resultTrue(int score1, int score2, boolean finishGame) {
+    @MethodSource("provideArgs_testUpdateGame")
+    public void testUpdateGame(boolean result, int score1, int score2, boolean opponentActivity, boolean finishGame) {
         var player1 = new Player("123", score1, true);
-        var player2 = new Player("987", score2, true);
+        var player2 = new Player("987", score2, opponentActivity);
         var game = new MultiplayerGame(StringUtil.generateGameId(player1.getId(), player2.getId()), 0, player1, player2, true);
-        var gameUpdate = new GameUpdate(game.getId(), player1.getId(), true);
+        var gameUpdate = new GameUpdate(game.getId(), player1.getId(), result);
         when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
 
         var updatedGame = gameServiceImpl.update(gameUpdate);
@@ -100,40 +110,6 @@ public class GameServiceImplTest extends BaseServiceTest {
             verify(gameDao).deleteById(game.getId());
             assertEquals(game, updatedGame);
         } else {
-            verify(gameDao).save(updatedGame);
-            assertEquals(game, updatedGame);
-        }
-    }
-
-    private static Stream<Arguments> provideArgs_testUpdateGame_resultFalse() {
-        return Stream.of(
-                Arguments.of(8, 9, true),
-                Arguments.of(8, 8, false),
-                Arguments.of(8, 7, false)
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideArgs_testUpdateGame_resultFalse")
-    public void testUpdateGame_resultFalse(int score1, int score2, boolean finishGame) {
-        var player1 = new Player("123", score1, true);
-        var player2 = new Player("987", score2, true);
-        var game = new MultiplayerGame(StringUtil.generateGameId(player1.getId(), player2.getId()), 0, player1, player2, true);
-        var gameUpdate = new GameUpdate(game.getId(), player1.getId(), false);
-        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
-
-        var updatedGame = gameServiceImpl.update(gameUpdate);
-
-        if (finishGame) {
-            game.finish();
-
-            verify(playerRegistryService).delete(game.getPlayer1().getId());
-            verify(playerRegistryService).delete(game.getPlayer2().getId());
-            verify(gameDao).deleteById(game.getId());
-            assertEquals(game, updatedGame);
-        } else {
-            player1.setPlaying(false);
-
             verify(gameDao).save(updatedGame);
             assertEquals(game, updatedGame);
         }
