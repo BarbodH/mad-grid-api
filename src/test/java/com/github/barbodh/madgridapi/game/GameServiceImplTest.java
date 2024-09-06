@@ -1,6 +1,7 @@
 package com.github.barbodh.madgridapi.game;
 
 import com.github.barbodh.madgridapi.BaseServiceTest;
+import com.github.barbodh.madgridapi.exception.InvalidGameStateException;
 import com.github.barbodh.madgridapi.exception.ScoreUpdateNotAllowedException;
 import com.github.barbodh.madgridapi.game.dao.GameDao;
 import com.github.barbodh.madgridapi.game.model.GameUpdate;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -74,15 +76,14 @@ public class GameServiceImplTest extends BaseServiceTest {
 
     private static Stream<Arguments> provideArgs_testUpdateGame() {
         return Stream.of(
+                Arguments.of(true, 6, 5, true, false),
                 Arguments.of(true, 5, 5, true, false),
                 Arguments.of(true, 5, 5, false, true),
                 Arguments.of(true, 4, 5, true, false),
                 Arguments.of(true, 4, 5, false, false),
                 Arguments.of(true, 3, 5, true, false),
                 Arguments.of(true, 3, 5, false, false),
-
                 Arguments.of(false, 6, 5, true, false),
-//                Arguments.of(false, 6, 5, false, true),
                 Arguments.of(false, 5, 5, true, false),
                 Arguments.of(false, 5, 5, false, true),
                 Arguments.of(false, 4, 5, true, true),
@@ -113,6 +114,18 @@ public class GameServiceImplTest extends BaseServiceTest {
             verify(gameDao).save(updatedGame);
             assertEquals(game, updatedGame);
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void testUpdateGame_invalidGameState(boolean result) {
+        var player1 = new Player("123", 6, true);
+        var player2 = new Player("987", 5, false);
+        var game = new MultiplayerGame(StringUtil.generateGameId(player1.getId(), player2.getId()), 0, player1, player2, true);
+        var gameUpdate = new GameUpdate(game.getId(), player1.getId(), result);
+        when(gameDao.findById(game.getId())).thenReturn(Optional.of(new MultiplayerGame(game.getId(), game.getGameMode(), player1, player2, true)));
+
+        assertThrows(InvalidGameStateException.class, () -> gameServiceImpl.update(gameUpdate));
     }
 
     @Test

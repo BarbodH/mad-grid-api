@@ -1,5 +1,6 @@
 package com.github.barbodh.madgridapi.game.service;
 
+import com.github.barbodh.madgridapi.exception.InvalidGameStateException;
 import com.github.barbodh.madgridapi.exception.ScoreUpdateNotAllowedException;
 import com.github.barbodh.madgridapi.game.dao.GameDao;
 import com.github.barbodh.madgridapi.game.model.GameUpdate;
@@ -49,9 +50,13 @@ public class GameServiceImpl implements GameService {
                     }
 
                     var player = gameUpdate.getPlayerId().equals(player1.getId()) ? player1 : player2;
+                    var other = player.equals(player1) ? player2 : player1;
 
                     if (!player.isPlaying()) {
                         throw new ScoreUpdateNotAllowedException();
+                    }
+                    if (player.getScore() > other.getScore() && !other.isPlaying()) {
+                        throw new InvalidGameStateException();
                     }
 
                     if (gameUpdate.isResult()) {
