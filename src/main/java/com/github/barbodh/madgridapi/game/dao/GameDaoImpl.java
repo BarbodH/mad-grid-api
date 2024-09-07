@@ -1,6 +1,7 @@
 package com.github.barbodh.madgridapi.game.dao;
 
 import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
+import com.github.barbodh.madgridapi.transaction.FirestoreTransactionContext;
 import com.github.barbodh.madgridapi.util.FirestoreUtil;
 import com.google.cloud.firestore.Firestore;
 import lombok.RequiredArgsConstructor;
@@ -11,25 +12,23 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class GameDaoImpl implements GameDao {
-    private final Firestore firestore;
     private final String collectionName = "activeGames";
+    private final Firestore firestore;
 
     @Override
     public void save(MultiplayerGame multiplayerGame) {
-        var future = firestore.collection(collectionName).document(multiplayerGame.getId()).set(multiplayerGame);
-        FirestoreUtil.awaitCompletion(future);
+        FirestoreTransactionContext.get().set(firestore.collection(collectionName).document(multiplayerGame.getId()), multiplayerGame);
     }
 
     @Override
     public Optional<MultiplayerGame> findById(String id) {
-        var future = firestore.collection(collectionName).document(id).get();
+        var future = FirestoreTransactionContext.get().get(firestore.collection(collectionName).document(id));
         var documentSnapshot = FirestoreUtil.awaitCompletion(future);
         return Optional.ofNullable(documentSnapshot.toObject(MultiplayerGame.class));
     }
 
     @Override
     public void deleteById(String id) {
-        var future = firestore.collection(collectionName).document(id).delete();
-        FirestoreUtil.awaitCompletion(future);
+        FirestoreTransactionContext.get().delete(firestore.collection(collectionName).document(id));
     }
 }

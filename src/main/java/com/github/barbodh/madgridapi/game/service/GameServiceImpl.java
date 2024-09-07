@@ -37,6 +37,7 @@ public class GameServiceImpl implements GameService {
         return game;
     }
 
+    @FirestoreTransactional
     @Override
     public MultiplayerGame update(GameUpdate gameUpdate) {
         return gameDao.findById(gameUpdate.getGameId())
