@@ -32,9 +32,9 @@ public class LobbyServiceImpl implements LobbyService {
                 throw new PlayerAlreadyInGameException();
             }
 
-            return lobbyDao.findOpponent(incomingPlayer)
+            return lobbyDao.findOpponent(transaction, incomingPlayer)
                     .map(opponent -> {
-                        lobbyDao.deleteById(opponent.getId());
+                        lobbyDao.deleteById(transaction, opponent.getId());
                         return gameService.create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
                     })
                     .or(() -> {
@@ -48,7 +48,7 @@ public class LobbyServiceImpl implements LobbyService {
     public void removePlayer(String playerId) {
         FirestoreUtil.runTransaction(firestore, transaction -> {
             ArgumentValidator.validatePlayerId(playerId);
-            lobbyDao.deleteById(playerId);
+            lobbyDao.deleteById(transaction, playerId);
             return null;
         });
     }

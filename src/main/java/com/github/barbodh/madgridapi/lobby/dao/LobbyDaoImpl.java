@@ -22,9 +22,9 @@ public class LobbyDaoImpl implements LobbyDao {
     }
 
     @Override
-    public Optional<IncomingPlayer> findOpponent(IncomingPlayer incomingPlayer) {
+    public Optional<IncomingPlayer> findOpponent(Transaction transaction, IncomingPlayer incomingPlayer) {
         var collection = firestore.collection(collectionName);
-        var future = collection.get();
+        var future = transaction.get(collection);
         var querySnapshot = FirestoreUtil.awaitCompletion(future);
 
         for (var document : querySnapshot.getDocuments()) {
@@ -40,8 +40,7 @@ public class LobbyDaoImpl implements LobbyDao {
     }
 
     @Override
-    public void deleteById(String id) {
-        var future = firestore.collection(collectionName).document(id).delete();
-        FirestoreUtil.awaitCompletion(future);
+    public void deleteById(Transaction transaction, String id) {
+        transaction.delete(firestore.collection(collectionName).document(id));
     }
 }
