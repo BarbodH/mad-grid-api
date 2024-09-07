@@ -9,6 +9,9 @@ import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.lobby.service.LobbyServiceImpl;
 import com.github.barbodh.madgridapi.registry.service.PlayerRegistryService;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
+import com.google.api.core.ApiFutures;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Transaction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +26,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class LobbyServiceImplTest extends BaseServiceTest {
     @Mock
+    private Firestore firestore;
+    @Mock
     private LobbyDao lobbyDao;
     @Mock
     private GameService gameService;
@@ -34,6 +39,11 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     @Test
     public void testMatchPlayer_basicArgumentValidation() {
         skipUnverifiedMockInteractionCheck = true;
+        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
+            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
+            return ApiFutures.immediateFuture(function.updateCallback(null));
+        });
+
         try (var mockedArgumentValidator = mockStatic(ArgumentValidator.class)) {
             var incomingPlayer = new IncomingPlayer("123", 0);
 
@@ -52,6 +62,10 @@ public class LobbyServiceImplTest extends BaseServiceTest {
         when(gameService.create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId()))
                 .thenReturn(expectedMultiplayerGameInstance);
         when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.of(opponent));
+        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
+            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
+            return ApiFutures.immediateFuture(function.updateCallback(null));
+        });
 
         var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
@@ -66,6 +80,10 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     public void testMatchPlayer_opponentNotFound() {
         var incomingPlayer = new IncomingPlayer("123", 0);
         when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.empty());
+        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
+            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
+            return ApiFutures.immediateFuture(function.updateCallback(null));
+        });
 
         var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
@@ -78,6 +96,10 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     public void testMatchPlayer_playerAlreadyInGame() {
         var incomingPlayer = new IncomingPlayer("123", 0);
         when(playerRegistryService.exists(incomingPlayer.getId())).thenReturn(true);
+        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
+            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
+            return ApiFutures.immediateFuture(function.updateCallback(null));
+        });
 
         assertThrows(PlayerAlreadyInGameException.class, () -> lobbyServiceImpl.matchPlayer(incomingPlayer));
     }
@@ -85,6 +107,11 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     @Test
     public void testRemovePlayer_basicArgumentValidation() {
         skipUnverifiedMockInteractionCheck = true;
+        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
+            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
+            return ApiFutures.immediateFuture(function.updateCallback(null));
+        });
+
         try (var mockedArgumentValidator = mockStatic(ArgumentValidator.class)) {
             var playerId = "123";
             lobbyServiceImpl.removePlayer(playerId);
@@ -95,6 +122,10 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     @Test
     public void testRemovePlayer() {
         var playerId = "123";
+        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
+            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
+            return ApiFutures.immediateFuture(function.updateCallback(null));
+        });
 
         lobbyServiceImpl.removePlayer(playerId);
 
