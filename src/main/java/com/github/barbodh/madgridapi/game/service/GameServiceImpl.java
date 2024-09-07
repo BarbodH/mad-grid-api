@@ -7,6 +7,7 @@ import com.github.barbodh.madgridapi.game.model.GameUpdate;
 import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.game.model.Player;
 import com.github.barbodh.madgridapi.registry.service.PlayerRegistryService;
+import com.github.barbodh.madgridapi.transaction.FirestoreTransactional;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import com.github.barbodh.madgridapi.util.StringUtil;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class GameServiceImpl implements GameService {
     private final GameDao gameDao;
     private final PlayerRegistryService playerRegistryService;
 
+    @FirestoreTransactional
     @Override
     public MultiplayerGame create(int gameMode, String playerId1, String playerId2) {
         ArgumentValidator.validateGameMode(gameMode);
@@ -35,6 +37,7 @@ public class GameServiceImpl implements GameService {
         return game;
     }
 
+    @FirestoreTransactional
     @Override
     public MultiplayerGame update(GameUpdate gameUpdate) {
         return gameDao.findById(gameUpdate.getGameId())

@@ -9,6 +9,7 @@ import com.github.barbodh.madgridapi.game.model.MultiplayerGame;
 import com.github.barbodh.madgridapi.game.model.Player;
 import com.github.barbodh.madgridapi.game.service.GameServiceImpl;
 import com.github.barbodh.madgridapi.registry.service.PlayerRegistryService;
+import com.github.barbodh.madgridapi.transaction.FirestoreTransactional;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import com.github.barbodh.madgridapi.util.StringUtil;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,12 @@ public class GameServiceImplTest extends BaseServiceTest {
     private PlayerRegistryService playerRegistryService;
     @InjectMocks
     private GameServiceImpl gameServiceImpl;
+
+    @Test
+    public void testAnnotations() throws NoSuchMethodException {
+        assertTrue(GameServiceImpl.class.getMethod("create", int.class, String.class, String.class).isAnnotationPresent(FirestoreTransactional.class));
+        assertTrue(GameServiceImpl.class.getMethod("update", GameUpdate.class).isAnnotationPresent(FirestoreTransactional.class));
+    }
 
     @Test
     public void testCreateMultiplayerGame_basicArgumentValidation() {

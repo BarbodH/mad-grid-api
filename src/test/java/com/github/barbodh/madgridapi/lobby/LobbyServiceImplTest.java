@@ -8,6 +8,7 @@ import com.github.barbodh.madgridapi.lobby.dao.LobbyDao;
 import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.lobby.service.LobbyServiceImpl;
 import com.github.barbodh.madgridapi.registry.service.PlayerRegistryService;
+import com.github.barbodh.madgridapi.transaction.FirestoreTransactional;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,12 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     private PlayerRegistryService playerRegistryService;
     @InjectMocks
     private LobbyServiceImpl lobbyServiceImpl;
+
+    @Test
+    public void testAnnotations() throws NoSuchMethodException {
+        assertTrue(LobbyServiceImpl.class.getMethod("matchPlayer", IncomingPlayer.class).isAnnotationPresent(FirestoreTransactional.class));
+        assertTrue(LobbyServiceImpl.class.getMethod("removePlayer", String.class).isAnnotationPresent(FirestoreTransactional.class));
+    }
 
     @Test
     public void testMatchPlayer_basicArgumentValidation() {
@@ -55,6 +62,7 @@ public class LobbyServiceImplTest extends BaseServiceTest {
 
         var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
+        verify(lobbyDao).findOpponent(incomingPlayer);
         verify(playerRegistryService).exists(incomingPlayer.getId());
         verify(gameService).create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
         verify(lobbyDao).deleteById(opponent.getId());
@@ -69,6 +77,7 @@ public class LobbyServiceImplTest extends BaseServiceTest {
 
         var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
+        verify(lobbyDao).findOpponent(incomingPlayer);
         verify(playerRegistryService).exists(incomingPlayer.getId());
         verify(lobbyDao).save(incomingPlayer);
         assertTrue(multiplayerGame.isEmpty());

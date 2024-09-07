@@ -1,45 +1,33 @@
 package com.github.barbodh.madgridapi.registry.dao;
 
-import com.github.barbodh.madgridapi.registry.model.PlayerRegistry;
+import com.github.barbodh.madgridapi.registry.model.ActivePlayer;
+import com.github.barbodh.madgridapi.transaction.FirestoreTransactionContext;
 import com.github.barbodh.madgridapi.util.FirestoreUtil;
-import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-
-import java.util.Collections;
-import java.util.HashMap;
 
 @Repository
 @RequiredArgsConstructor
 public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
     private final String collectionName = "activePlayers";
-    private final String documentName = "registry";
     private final Firestore firestore;
 
     @Override
     public void update(String id) {
-        var documentReference = firestore.collection(collectionName).document(documentName);
-        var future = documentReference.get();
-        var documentSnapshot = FirestoreUtil.awaitCompletion(future);
-
-        if (documentSnapshot.exists()) {
-            documentReference.update("ids", FieldValue.arrayUnion(id));
-        } else {
-            var data = new HashMap<String, Object>();
-            data.put("ids", Collections.singletonList(id));
-            documentReference.set(data);
-        }
+        FirestoreTransactionContext.get().set(firestore.collection(collectionName).document(id), new ActivePlayer(id));
     }
 
     @Override
     public boolean exists(String id) {
-        var future = firestore.collection(collectionName).document(documentName).get();
-        var documentSnapshot = FirestoreUtil.awaitCompletion(future);
+        var future = FirestoreTransactionContext.get().get(firestore.collection(collectionName));
+        var querySnapshot = FirestoreUtil.awaitCompletion(future);
 
-        if (documentSnapshot.exists()) {
-            var registry = documentSnapshot.toObject(PlayerRegistry.class);
-            return registry != null && registry.getIds().contains(id);
+        for (var document : querySnapshot.getDocuments()) {
+            var activePlayer = document.toObject(ActivePlayer.class);
+            if (activePlayer.getId().equals(id)) {
+                return true;
+            }
         }
 
         return false;
@@ -47,7 +35,6 @@ public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
 
     @Override
     public void delete(String id) {
-        var future = firestore.collection(collectionName).document(documentName).update("ids", FieldValue.arrayRemove(id));
-        FirestoreUtil.awaitCompletion(future);
+        FirestoreTransactionContext.get().delete(firestore.collection(collectionName).document(id));
     }
 }
