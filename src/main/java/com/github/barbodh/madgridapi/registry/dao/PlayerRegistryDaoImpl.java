@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
     private final String collectionName = "activePlayers";
-
     private final Firestore firestore;
 
     @Override
