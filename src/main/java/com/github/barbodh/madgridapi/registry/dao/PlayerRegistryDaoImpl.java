@@ -4,6 +4,7 @@ import com.github.barbodh.madgridapi.registry.model.PlayerRegistry;
 import com.github.barbodh.madgridapi.util.FirestoreUtil;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +19,7 @@ public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
     private final Firestore firestore;
 
     @Override
-    public void update(String id) {
+    public void update(Transaction transaction, String id) {
         var documentReference = firestore.collection(collectionName).document(documentName);
         var future = documentReference.get();
         var documentSnapshot = FirestoreUtil.awaitCompletion(future);
@@ -33,7 +34,7 @@ public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
     }
 
     @Override
-    public boolean exists(String id) {
+    public boolean exists(Transaction transaction, String id) {
         var future = firestore.collection(collectionName).document(documentName).get();
         var documentSnapshot = FirestoreUtil.awaitCompletion(future);
 
@@ -46,7 +47,7 @@ public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(Transaction transaction, String id) {
         var future = firestore.collection(collectionName).document(documentName).update("ids", FieldValue.arrayRemove(id));
         FirestoreUtil.awaitCompletion(future);
     }
