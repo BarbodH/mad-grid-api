@@ -21,21 +21,21 @@ public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
     @Override
     public void update(Transaction transaction, String id) {
         var documentReference = firestore.collection(collectionName).document(documentName);
-        var future = documentReference.get();
+        var future = transaction.get(documentReference);
         var documentSnapshot = FirestoreUtil.awaitCompletion(future);
 
         if (documentSnapshot.exists()) {
-            documentReference.update("ids", FieldValue.arrayUnion(id));
+            transaction.update(documentReference, "ids", FieldValue.arrayUnion(id));
         } else {
             var data = new HashMap<String, Object>();
             data.put("ids", Collections.singletonList(id));
-            documentReference.set(data);
+            transaction.set(documentReference, data);
         }
     }
 
     @Override
     public boolean exists(Transaction transaction, String id) {
-        var future = firestore.collection(collectionName).document(documentName).get();
+        var future = transaction.get(firestore.collection(collectionName).document(documentName));
         var documentSnapshot = FirestoreUtil.awaitCompletion(future);
 
         if (documentSnapshot.exists()) {
@@ -48,7 +48,6 @@ public class PlayerRegistryDaoImpl implements PlayerRegistryDao {
 
     @Override
     public void delete(Transaction transaction, String id) {
-        var future = firestore.collection(collectionName).document(documentName).update("ids", FieldValue.arrayRemove(id));
-        FirestoreUtil.awaitCompletion(future);
+        transaction.update(firestore.collection(collectionName).document(documentName), "ids", FieldValue.arrayRemove(id));
     }
 }
