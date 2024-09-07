@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PlayerRegistryImpl implements PlayerRegistryService {
+public class PlayerRegistryServiceImpl implements PlayerRegistryService {
     private final Firestore firestore;
     private final PlayerRegistryDao playerRegistryDao;
 
