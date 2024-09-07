@@ -38,7 +38,7 @@ public class LobbyServiceImpl implements LobbyService {
                         return gameService.create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
                     })
                     .or(() -> {
-                        lobbyDao.save(incomingPlayer);
+                        lobbyDao.save(transaction, incomingPlayer);
                         return Optional.empty();
                     });
         });

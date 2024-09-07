@@ -28,6 +28,8 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     @Mock
     private Firestore firestore;
     @Mock
+    private Transaction transaction;
+    @Mock
     private LobbyDao lobbyDao;
     @Mock
     private GameService gameService;
@@ -82,13 +84,13 @@ public class LobbyServiceImplTest extends BaseServiceTest {
         when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.empty());
         when(firestore.runTransaction(any())).thenAnswer(invocation -> {
             Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
-            return ApiFutures.immediateFuture(function.updateCallback(null));
+            return ApiFutures.immediateFuture(function.updateCallback(transaction));
         });
 
         var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
         verify(playerRegistryService).exists(incomingPlayer.getId());
-        verify(lobbyDao).save(incomingPlayer);
+        verify(lobbyDao).save(transaction, incomingPlayer);
         assertTrue(multiplayerGame.isEmpty());
     }
 

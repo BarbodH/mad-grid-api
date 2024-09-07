@@ -4,6 +4,7 @@ package com.github.barbodh.madgridapi.lobby.dao;
 import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.util.FirestoreUtil;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Transaction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -16,9 +17,8 @@ public class LobbyDaoImpl implements LobbyDao {
     private final Firestore firestore;
 
     @Override
-    public void save(IncomingPlayer incomingPlayer) {
-        var future = firestore.collection(collectionName).document(incomingPlayer.getId()).set(incomingPlayer);
-        FirestoreUtil.awaitCompletion(future);
+    public void save(Transaction transaction, IncomingPlayer incomingPlayer) {
+        transaction.set(firestore.collection(collectionName).document(incomingPlayer.getId()), incomingPlayer);
     }
 
     @Override
