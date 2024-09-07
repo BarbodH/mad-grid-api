@@ -12,6 +12,7 @@ import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import com.google.api.core.ApiFutures;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Transaction;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,14 +39,17 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     @InjectMocks
     private LobbyServiceImpl lobbyServiceImpl;
 
-    @Test
-    public void testMatchPlayer_basicArgumentValidation() {
-        skipUnverifiedMockInteractionCheck = true;
+    @BeforeEach
+    public void setup() {
         when(firestore.runTransaction(any())).thenAnswer(invocation -> {
             Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
             return ApiFutures.immediateFuture(function.updateCallback(transaction));
         });
+    }
 
+    @Test
+    public void testMatchPlayer_basicArgumentValidation() {
+        skipUnverifiedMockInteractionCheck = true;
         try (var mockedArgumentValidator = mockStatic(ArgumentValidator.class)) {
             var incomingPlayer = new IncomingPlayer("123", 0);
 
@@ -64,10 +68,6 @@ public class LobbyServiceImplTest extends BaseServiceTest {
         when(gameService.create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId()))
                 .thenReturn(expectedMultiplayerGameInstance);
         when(lobbyDao.findOpponent(transaction, incomingPlayer)).thenReturn(Optional.of(opponent));
-        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
-            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
-            return ApiFutures.immediateFuture(function.updateCallback(transaction));
-        });
 
         var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
@@ -83,10 +83,6 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     public void testMatchPlayer_opponentNotFound() {
         var incomingPlayer = new IncomingPlayer("123", 0);
         when(lobbyDao.findOpponent(transaction, incomingPlayer)).thenReturn(Optional.empty());
-        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
-            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
-            return ApiFutures.immediateFuture(function.updateCallback(transaction));
-        });
 
         var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
@@ -100,10 +96,6 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     public void testMatchPlayer_playerAlreadyInGame() {
         var incomingPlayer = new IncomingPlayer("123", 0);
         when(playerRegistryService.exists(incomingPlayer.getId())).thenReturn(true);
-        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
-            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
-            return ApiFutures.immediateFuture(function.updateCallback(transaction));
-        });
 
         assertThrows(PlayerAlreadyInGameException.class, () -> lobbyServiceImpl.matchPlayer(incomingPlayer));
     }
@@ -111,11 +103,6 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     @Test
     public void testRemovePlayer_basicArgumentValidation() {
         skipUnverifiedMockInteractionCheck = true;
-        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
-            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
-            return ApiFutures.immediateFuture(function.updateCallback(transaction));
-        });
-
         try (var mockedArgumentValidator = mockStatic(ArgumentValidator.class)) {
             var playerId = "123";
             lobbyServiceImpl.removePlayer(playerId);
@@ -126,10 +113,6 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     @Test
     public void testRemovePlayer() {
         var playerId = "123";
-        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
-            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
-            return ApiFutures.immediateFuture(function.updateCallback(transaction));
-        });
 
         lobbyServiceImpl.removePlayer(playerId);
 
