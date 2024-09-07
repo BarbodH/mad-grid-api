@@ -6,6 +6,8 @@ import com.github.barbodh.madgridapi.game.service.GameService;
 import com.github.barbodh.madgridapi.lobby.dao.LobbyDao;
 import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.registry.service.PlayerRegistryService;
+import com.github.barbodh.madgridapi.transaction.FirestoreTransactionContext;
+import com.github.barbodh.madgridapi.transaction.FirestoreTransactional;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
 import com.github.barbodh.madgridapi.util.FirestoreUtil;
 import com.google.cloud.firestore.Firestore;
@@ -22,26 +24,27 @@ public class LobbyServiceImpl implements LobbyService {
     private final LobbyDao lobbyDao;
     private final PlayerRegistryService playerRegistryService;
 
+    @FirestoreTransactional
     @Override
     public Optional<MultiplayerGame> matchPlayer(IncomingPlayer incomingPlayer) {
-        return FirestoreUtil.runTransaction(firestore, transaction -> {
-            ArgumentValidator.validatePlayerId(incomingPlayer.getId());
-            ArgumentValidator.validateGameMode(incomingPlayer.getGameMode());
+        var transaction = FirestoreTransactionContext.get();
 
-            if (playerRegistryService.exists(incomingPlayer.getId())) {
-                throw new PlayerAlreadyInGameException();
-            }
+        ArgumentValidator.validatePlayerId(incomingPlayer.getId());
+        ArgumentValidator.validateGameMode(incomingPlayer.getGameMode());
 
-            return lobbyDao.findOpponent(transaction, incomingPlayer)
-                    .map(opponent -> {
-                        lobbyDao.deleteById(transaction, opponent.getId());
-                        return gameService.create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
-                    })
-                    .or(() -> {
-                        lobbyDao.save(transaction, incomingPlayer);
-                        return Optional.empty();
-                    });
-        });
+        if (playerRegistryService.exists(incomingPlayer.getId())) {
+            throw new PlayerAlreadyInGameException();
+        }
+
+        return lobbyDao.findOpponent(transaction, incomingPlayer)
+                .map(opponent -> {
+                    lobbyDao.deleteById(transaction, opponent.getId());
+                    return gameService.create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
+                })
+                .or(() -> {
+                    lobbyDao.save(transaction, incomingPlayer);
+                    return Optional.empty();
+                });
     }
 
     @Override
