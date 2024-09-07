@@ -9,10 +9,6 @@ import com.github.barbodh.madgridapi.lobby.model.IncomingPlayer;
 import com.github.barbodh.madgridapi.lobby.service.LobbyServiceImpl;
 import com.github.barbodh.madgridapi.registry.service.PlayerRegistryService;
 import com.github.barbodh.madgridapi.util.ArgumentValidator;
-import com.google.api.core.ApiFutures;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.Transaction;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,10 +23,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class LobbyServiceImplTest extends BaseServiceTest {
     @Mock
-    private Firestore firestore;
-    @Mock
-    private Transaction transaction;
-    @Mock
     private LobbyDao lobbyDao;
     @Mock
     private GameService gameService;
@@ -38,14 +30,6 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     private PlayerRegistryService playerRegistryService;
     @InjectMocks
     private LobbyServiceImpl lobbyServiceImpl;
-
-    @BeforeEach
-    public void setup() {
-        when(firestore.runTransaction(any())).thenAnswer(invocation -> {
-            Transaction.Function<Optional<MultiplayerGame>> function = invocation.getArgument(0);
-            return ApiFutures.immediateFuture(function.updateCallback(transaction));
-        });
-    }
 
     @Test
     public void testMatchPlayer_basicArgumentValidation() {
@@ -67,14 +51,14 @@ public class LobbyServiceImplTest extends BaseServiceTest {
         var expectedMultiplayerGameInstance = new MultiplayerGame();
         when(gameService.create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId()))
                 .thenReturn(expectedMultiplayerGameInstance);
-        when(lobbyDao.findOpponent(transaction, incomingPlayer)).thenReturn(Optional.of(opponent));
+        when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.of(opponent));
 
         var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
-        verify(lobbyDao).findOpponent(transaction, incomingPlayer);
+        verify(lobbyDao).findOpponent(incomingPlayer);
         verify(playerRegistryService).exists(incomingPlayer.getId());
         verify(gameService).create(incomingPlayer.getGameMode(), incomingPlayer.getId(), opponent.getId());
-        verify(lobbyDao).deleteById(transaction, opponent.getId());
+        verify(lobbyDao).deleteById(opponent.getId());
         assertTrue(multiplayerGame.isPresent());
         assertEquals(expectedMultiplayerGameInstance, multiplayerGame.get());
     }
@@ -82,13 +66,13 @@ public class LobbyServiceImplTest extends BaseServiceTest {
     @Test
     public void testMatchPlayer_opponentNotFound() {
         var incomingPlayer = new IncomingPlayer("123", 0);
-        when(lobbyDao.findOpponent(transaction, incomingPlayer)).thenReturn(Optional.empty());
+        when(lobbyDao.findOpponent(incomingPlayer)).thenReturn(Optional.empty());
 
         var multiplayerGame = lobbyServiceImpl.matchPlayer(incomingPlayer);
 
-        verify(lobbyDao).findOpponent(transaction, incomingPlayer);
+        verify(lobbyDao).findOpponent(incomingPlayer);
         verify(playerRegistryService).exists(incomingPlayer.getId());
-        verify(lobbyDao).save(transaction, incomingPlayer);
+        verify(lobbyDao).save(incomingPlayer);
         assertTrue(multiplayerGame.isEmpty());
     }
 
@@ -116,6 +100,6 @@ public class LobbyServiceImplTest extends BaseServiceTest {
 
         lobbyServiceImpl.removePlayer(playerId);
 
-        verify(lobbyDao).deleteById(transaction, playerId);
+        verify(lobbyDao).deleteById(playerId);
     }
 }
